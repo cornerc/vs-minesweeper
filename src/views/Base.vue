@@ -49,8 +49,8 @@
   </div>
 </template>
 
-<script>
-import { Component, Vue } from "vue-property-decorator";
+<script lang="ts">
+import {Component, Vue} from "vue-property-decorator";
 
 @Component
 export default class Base extends Vue {
@@ -58,56 +58,56 @@ export default class Base extends Vue {
     {
       icon: "mdi-information",
       class: "",
-      action: new Function()
+      action: new Function(),
     },
     {
       icon: "mdi-refresh",
       class: "",
-      action: new Function()
+      action: new Function(),
     },
     {
       icon: "mdi-cog",
       class: "",
-      action: new Function()
-    }
+      action: new Function(),
+    },
   ];
   sideMenuItems = [
     {
       icon: "mdi-home",
       text: "TOP",
       class: "sidebar-content",
-      action: new Function()
+      action: new Function(),
     },
     {
       icon: "mdi-account",
       text: "Single",
       class: "sidebar-content",
-      action: new Function()
+      action: new Function(),
     },
     {
       icon: "mdi-timer-outline",
       text: "Time Attack",
       class: "sidebar-content",
-      action: new Function()
+      action: new Function(),
     },
     {
       icon: "mdi-account-convert",
       text: "Turn",
       class: "sidebar-content",
-      action: new Function()
+      action: new Function(),
     },
     {
       icon: "mdi-timer",
       text: "Real Time Attack",
       class: "sidebar-content",
-      action: new Function()
-    }
+      action: new Function(),
+    },
   ];
   drawer = false;
   group = null;
   mini = true;
 
-  toggleDrawer() {
+  toggleDrawer(): void {
     this.drawer = !this.drawer;
     this.mini = !this.mini;
   }
