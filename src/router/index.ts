@@ -1,5 +1,7 @@
 import Vue from "vue";
 import VueRouter, {RouteConfig} from "vue-router";
+import About from "../views/About.vue";
+import Base from "../views/Base.vue";
 import Home from "../views/Home.vue";
 
 Vue.use(VueRouter);
@@ -7,14 +9,18 @@ Vue.use(VueRouter);
 const routes: RouteConfig[] = [
   {
     path: "/",
+    name: "Base",
+    component: Base,
+  },
+  {
+    path: "/home",
     name: "Home",
     component: Home,
   },
   {
     path: "/about",
     name: "About",
-    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-    component: () => import("../views/About.vue"),
+    component: About,
   },
 ];
 
