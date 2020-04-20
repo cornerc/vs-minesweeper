@@ -14,14 +14,14 @@
         <v-chip class="ma-2" label>Label</v-chip>
         <v-spacer></v-spacer>
         <template v-for="item in headerRightItems">
-          <v-btn icon :key="item.icon" @click.stop="item.action">
+          <v-btn :key="item.icon" icon @click.stop="item.action">
             <v-icon>{{ item.icon }}</v-icon>
           </v-btn>
         </template>
       </v-toolbar>
       <v-navigation-drawer
-        class="navigation-drawer"
         v-model="drawer"
+        class="navigation-drawer"
         :mini-variant="mini"
         app
         permanent
@@ -34,7 +34,7 @@
             </v-list-item-action>
           </v-list-item>
           <template v-for="item in sideMenuItems">
-            <v-list-item link @click.stop="item.action" :key="item.icon">
+            <v-list-item :key="item.icon" link @click.stop="item.action">
               <v-list-item-action>
                 <v-icon>{{ item.icon }}</v-icon>
               </v-list-item-action>
@@ -107,7 +107,7 @@ export default class Base extends Vue {
   group = null;
   mini = true;
 
-  toggleDrawer(): void {
+  toggleDrawer() {
     this.drawer = !this.drawer;
     this.mini = !this.mini;
   }

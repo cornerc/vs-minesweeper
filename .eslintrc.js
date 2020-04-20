@@ -1,11 +1,6 @@
 module.exports = {
   root: true,
-  extends: [
-    "plugin:vue/essential",
-    "@vue/typescript/recommended",
-    "@vue/prettier",
-    "@vue/prettier/@typescript-eslint",
-  ],
+  extends: ["plugin:vue/recommended", "@vue/prettier", "@vue/typescript"],
   parser: "vue-eslint-parser",
   parserOptions: {
     parser: "@typescript-eslint/parser",
