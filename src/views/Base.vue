@@ -1,5 +1,6 @@
 <template>
   <div class="base">
+    <configDialog :dialog="configDialog" @toggleDialog="toggleConfigDialog" />
     <v-card color="green lighten-4" flat>
       <v-toolbar dense flat :tile="false">
         <v-toolbar-title>VSマインスイーパー</v-toolbar-title>
@@ -51,8 +52,13 @@
 
 <script lang="ts">
 import {Component, Vue} from "vue-property-decorator";
+import ConfigDialog from "@/views/ConfigDialog.vue";
 
-@Component
+@Component({
+  components: {
+    ConfigDialog,
+  },
+})
 export default class Base extends Vue {
   headerRightItems = [
     {
@@ -68,7 +74,7 @@ export default class Base extends Vue {
     {
       icon: "mdi-cog",
       class: "",
-      action: new Function(),
+      action: () => this.toggleConfigDialog(),
     },
   ];
   sideMenuItems = [
@@ -106,10 +112,14 @@ export default class Base extends Vue {
   drawer = false;
   group = null;
   mini = true;
+  configDialog = true;
 
   toggleDrawer() {
     this.drawer = !this.drawer;
     this.mini = !this.mini;
+  }
+  toggleConfigDialog() {
+    this.configDialog = !this.configDialog;
   }
 }
 </script>
