@@ -1,56 +1,70 @@
 <template>
-  <div class="base">
-    <v-card color="green lighten-4" flat>
-      <v-toolbar dense flat :tile="false">
-        <v-toolbar-title>VSマインスイーパー</v-toolbar-title>
-        <v-spacer></v-spacer>
-        <v-icon>mdi-table</v-icon>
-        <v-chip class="ma-2" label>Label</v-chip>
-        <v-spacer></v-spacer>
-        <v-icon>mdi-av-timer</v-icon>
-        <v-chip class="ma-2" label>Label</v-chip>
-        <v-spacer></v-spacer>
-        <v-icon>mdi-emoticon-cool-outline</v-icon>
-        <v-chip class="ma-2" label>Label</v-chip>
-        <v-spacer></v-spacer>
-        <template v-for="item in headerRightItems">
-          <v-btn :key="item.icon" icon @click.stop="item.action">
-            <v-icon>{{ item.icon }}</v-icon>
-          </v-btn>
-        </template>
-      </v-toolbar>
-      <v-navigation-drawer
-        v-model="drawer"
-        class="navigation-drawer"
-        :mini-variant="mini"
-        app
-        permanent
-      >
-        <v-list>
-          <v-list-item link @click.stop="toggleDrawer">
-            <v-list-item-action>
-              <v-icon v-show="drawer">mdi-chevron-triple-right</v-icon>
-              <v-icon v-show="!drawer">mdi-chevron-triple-left</v-icon>
-            </v-list-item-action>
-          </v-list-item>
-          <template v-for="item in sideMenuItems">
-            <v-list-item :key="item.icon" link @click.stop="item.action">
-              <v-list-item-action>
-                <v-icon>{{ item.icon }}</v-icon>
-              </v-list-item-action>
-              <v-list-item-content :class="item.class">
-                <v-list-item-title>{{ item.text }}</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
+  <v-app>
+    <div class="base">
+      <v-card color="green lighten-4" flat>
+        <v-toolbar dense flat :tile="false">
+          <v-toolbar-title>VSマインスイーパー</v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-icon>mdi-table</v-icon>
+          <v-chip class="ma-2" label>
+            {{ $store.state.row }}&nbsp;×&nbsp;{{ $store.state.col }}
+          </v-chip>
+          <v-spacer></v-spacer>
+          <v-icon>mdi-av-timer</v-icon>
+          <v-chip class="ma-2" label>{{
+            displayTime($store.getters.time)
+          }}</v-chip>
+          <v-spacer></v-spacer>
+          <v-icon>mdi-emoticon-cool-outline</v-icon>
+          <v-chip class="ma-2" label>
+            {{ $store.getters.remainMine }} / {{ $store.state.mine }}
+          </v-chip>
+          <v-spacer></v-spacer>
+          <template v-for="item in headerRightItems">
+            <v-btn :key="item.icon" icon :to="item.to" @click.stop="item.click">
+              <v-icon>{{ item.icon }}</v-icon>
+            </v-btn>
           </template>
-        </v-list>
-      </v-navigation-drawer>
-    </v-card>
-  </div>
+        </v-toolbar>
+        <v-navigation-drawer
+          v-model="drawer"
+          class="navigation-drawer"
+          :mini-variant="mini"
+          app
+          permanent
+        >
+          <v-list>
+            <v-list-item link @click.stop="toggleDrawer">
+              <v-list-item-action>
+                <v-icon v-show="drawer">mdi-chevron-triple-right</v-icon>
+                <v-icon v-show="!drawer">mdi-chevron-triple-left</v-icon>
+              </v-list-item-action>
+            </v-list-item>
+            <template v-for="item in sideMenuItems">
+              <v-list-item :key="item.icon" link @click.stop="item.click">
+                <v-list-item-action>
+                  <v-icon>{{ item.icon }}</v-icon>
+                </v-list-item-action>
+                <v-list-item-content :class="item.class">
+                  <v-list-item-title>{{ item.text }}</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+            </template>
+          </v-list>
+        </v-navigation-drawer>
+      </v-card>
+      <v-content>
+        <v-container fluid>
+          <router-view></router-view>
+        </v-container>
+      </v-content>
+    </div>
+  </v-app>
 </template>
 
 <script lang="ts">
-import {Component, Vue} from "vue-property-decorator";
+import {Component, Vue, Watch} from "vue-property-decorator";
+import router from "@/router/index";
 
 @Component
 export default class Base extends Vue {
@@ -58,17 +72,20 @@ export default class Base extends Vue {
     {
       icon: "mdi-information",
       class: "",
-      action: new Function(),
+      click: () => new Function(),
     },
     {
       icon: "mdi-refresh",
       class: "",
-      action: new Function(),
+      click: () => {
+        this.$store.dispatch("initField");
+        this.$store.dispatch("initTime");
+      },
     },
     {
       icon: "mdi-cog",
       class: "",
-      action: new Function(),
+      click: () => new Function(),
     },
   ];
   sideMenuItems = [
@@ -76,40 +93,42 @@ export default class Base extends Vue {
       icon: "mdi-home",
       text: "TOP",
       class: "sidebar-content",
-      action: new Function(),
+      click: () => router.push("/"),
     },
     {
       icon: "mdi-account",
       text: "Single",
       class: "sidebar-content",
-      action: new Function(),
+      click: () => router.push("single"),
     },
     {
       icon: "mdi-timer-outline",
       text: "Time Attack",
       class: "sidebar-content",
-      action: new Function(),
+      click: () => new Function(),
     },
     {
       icon: "mdi-account-convert",
       text: "Turn",
       class: "sidebar-content",
-      action: new Function(),
+      click: () => new Function(),
     },
     {
       icon: "mdi-timer",
       text: "Real Time Attack",
       class: "sidebar-content",
-      action: new Function(),
+      click: () => new Function(),
     },
   ];
   drawer = false;
-  group = null;
   mini = true;
 
   toggleDrawer() {
     this.drawer = !this.drawer;
     this.mini = !this.mini;
+  }
+  displayTime(time: number) {
+    return time;
   }
 }
 </script>
