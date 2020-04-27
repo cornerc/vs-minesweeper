@@ -1,13 +1,17 @@
 <template>
   <div class="base">
-    <configDialog :dialog="configDialog" @toggleDialog="toggleConfigDialog" />
+    <configDialog
+      :dialog="configDialog"
+      :config="$store.getters.config"
+      @toggleDialog="toggleConfigDialog"
+    />
     <v-card color="green lighten-4" flat>
       <v-toolbar dense flat :tile="false">
         <v-toolbar-title>VSマインスイーパー</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-icon>mdi-table</v-icon>
         <v-chip class="ma-2" label>
-          {{ $store.state.row }}&nbsp;×&nbsp;{{ $store.state.col }}
+          {{ $store.getters.row }}&nbsp;×&nbsp;{{ $store.getters.col }}
         </v-chip>
         <v-spacer></v-spacer>
         <v-icon>mdi-av-timer</v-icon>
@@ -17,7 +21,7 @@
         <v-spacer></v-spacer>
         <v-icon>mdi-emoticon-cool-outline</v-icon>
         <v-chip class="ma-2" label>
-          {{ $store.getters.remainMine }} / {{ $store.state.mine }}
+          {{ $store.getters.remainMine }} / {{ $store.getters.mine }}
         </v-chip>
         <v-spacer></v-spacer>
         <template v-for="item in headerRightItems">
@@ -81,10 +85,7 @@ export default class Base extends Vue {
     {
       icon: "mdi-refresh",
       class: "",
-      click: () => {
-        this.$store.dispatch("initField");
-        this.$store.dispatch("initTime");
-      },
+      click: this.refreshField,
     },
     {
       icon: "mdi-cog",
@@ -124,9 +125,10 @@ export default class Base extends Vue {
       click: () => new Function(),
     },
   ];
-  drawer = false;
-  mini = true;
-  configDialog = true;
+  private timerId = 0;
+  private drawer = false;
+  private mini = true;
+  private configDialog = false;
 
   toggleDrawer() {
     this.drawer = !this.drawer;
@@ -137,6 +139,9 @@ export default class Base extends Vue {
   }
   displayTime(time: number) {
     return time;
+  }
+  refreshField() {
+    this.$store.dispatch("initField");
   }
 }
 </script>

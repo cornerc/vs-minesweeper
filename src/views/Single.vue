@@ -6,7 +6,7 @@
         閉じる
       </v-btn>
     </v-snackbar>
-    <div v-for="(items, itemsIdx) in $store.state.field" :key="itemsIdx">
+    <div v-for="(items, itemsIdx) in $store.getters.field" :key="itemsIdx">
       <span v-for="(item, itemIdx) in items" :key="itemsIdx + '_' + itemIdx">
         <v-btn
           icon
@@ -37,7 +37,7 @@ export default class Single extends Vue {
   @Watch("$store.getters.isGameClear")
   showClearDisplay() {
     if (this.$store.getters.isGameClear) {
-      this.stopTimer();
+      this.$store.dispatch("stopTimer");
       this.$store.dispatch("openCellAll");
       this.showSnackbar("おめでとうございます。クリアしました。");
     }
@@ -46,7 +46,7 @@ export default class Single extends Vue {
   @Watch("$store.getters.isStart")
   setInit() {
     if (!this.$store.getters.isStart) {
-      this.stopTimer();
+      this.$store.dispatch("stopTimer");
     }
   }
 
@@ -72,11 +72,11 @@ export default class Single extends Vue {
     }
     if (!this.$store.getters.isStart) {
       // TODO:初期クリックでは、空白を選択するようにする。
-      this.startTimer();
+      this.$store.dispatch("startTimer");
     }
     // ゲームオーバー判定
     if (cell.isLandMine) {
-      this.stopTimer();
+      this.$store.dispatch("stopTimer");
       this.$store.dispatch("openCellAll");
       this.showSnackbar("あなたは戦死しました。");
     }
@@ -95,17 +95,8 @@ export default class Single extends Vue {
     this.snackbar.text = text;
     this.snackbar.isOpen = true;
   }
-  startTimer() {
-    this.timerId = window.setInterval(() => {
-      this.$store.dispatch("tickTime");
-    }, 1000);
-  }
-  stopTimer() {
-    window.clearInterval(this.timerId);
-  }
   created() {
     this.$store.dispatch("initField");
-    this.$store.dispatch("initTime");
   }
 }
 </script>

@@ -17,20 +17,10 @@
               <div>テーマ</div>
             </v-col>
             <v-col cols="12" sm="6">
-              <v-checkbox
-                v-model="theme"
-                label="Light"
-                value="Light"
-                dense
-              ></v-checkbox>
+              <v-checkbox v-model="theme" label="Light" value="Light" dense />
             </v-col>
             <v-col cols="12" sm="6">
-              <v-checkbox
-                v-model="theme"
-                label="Dark"
-                value="Dark"
-                dense
-              ></v-checkbox>
+              <v-checkbox v-model="theme" label="Dark" value="Dark" dense />
             </v-col>
           </v-row>
           <v-row>
@@ -38,38 +28,50 @@
               <div>フィールド</div>
             </v-col>
             <v-col cols="12" sm="5">
-              <v-text-field label="たて" type="number" dense></v-text-field>
+              <v-text-field
+                v-model.number="innerConfig.row"
+                label="たて"
+                type="number"
+                dense
+              ></v-text-field>
             </v-col>
             <v-col cols="12" sm="2" align-self="center">
               <v-icon>mdi-close-thick</v-icon>
             </v-col>
             <v-col cols="12" sm="5">
-              <v-text-field label="よこ" type="number" dense></v-text-field>
+              <v-text-field
+                v-model.number="innerConfig.col"
+                label="よこ"
+                type="number"
+                dense
+              ></v-text-field>
             </v-col>
           </v-row>
           <v-row>
             <v-col cols="12" sm="6">
               <v-text-field
+                v-model.number="innerConfig.mine"
                 label="マイン"
-                hint="推奨は総セル数の12~20%です"
+                :hint="calcHint"
                 persistent-hint
                 dense
                 type="number"
               ></v-text-field>
             </v-col>
-            <v-col cols="12" sm="6"> </v-col>
+            <v-col cols="12" sm="6"></v-col>
           </v-row>
-
           <v-row>
             <v-col>
-              <span>設定を保存するとプレイ中のフィールドは初期化されます</span>
+              <span class="note">
+                設定を保存するとプレイ中のフィールドは初期化されます
+              </span>
             </v-col>
           </v-row>
         </v-container>
       </v-card-text>
 
       <v-card-actions>
-        <v-spacer></v-spacer>
+        <v-spacer />
         <v-btn text @click.stop="toggleDialog">
           キャンセル
         </v-btn>
@@ -83,24 +85,49 @@
 
 <script lang="ts">
 import {Component, Emit, Prop, Vue} from "vue-property-decorator";
+import {Config} from "@/store/type";
 
 @Component
 export default class ConfigDialog extends Vue {
   @Prop({type: Boolean, default: false})
   dialog: boolean;
+  @Prop({type: Object, default: {}})
+  config: Config;
 
-  theme = "Light";
+  private innerConfig: Config = Object.assign({}, this.config);
+  private theme = "Light";
+
+  get calcHint() {
+    return (
+      "推奨は総セル数の" +
+      this.adviseMineMin +
+      "~" +
+      this.adviseMineMax +
+      "個です"
+    );
+  }
+  get adviseMineMin() {
+    return Math.round(this.innerConfig.row * this.innerConfig.col * (12 / 100));
+  }
+  get adviseMineMax() {
+    return Math.round(this.innerConfig.row * this.innerConfig.col * (20 / 100));
+  }
 
   saveConfig() {
-    // 保存アクション
+    this.$store.dispatch("setConfig", this.innerConfig);
     this.toggleDialog();
   }
 
   @Emit("toggleDialog")
   toggleDialog() {
+    this.innerConfig = Object.assign({}, this.config);
     return;
   }
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.note {
+  color: red;
+}
+</style>
