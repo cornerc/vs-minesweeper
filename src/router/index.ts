@@ -3,6 +3,7 @@ import VueRouter, {RouteConfig} from "vue-router";
 import About from "../views/About.vue";
 import Base from "../views/Base.vue";
 import Home from "../views/Home.vue";
+import Single from "../views/Single.vue";
 
 Vue.use(VueRouter);
 
@@ -11,6 +12,12 @@ const routes: RouteConfig[] = [
     path: "/",
     name: "Base",
     component: Base,
+    children: [
+      {
+        path: "/single",
+        component: Single,
+      },
+    ],
   },
   {
     path: "/home",
