@@ -11,3 +11,9 @@ export interface Cell {
   isLandMine: boolean;
   aroundMines: number;
 }
+
+export interface Config {
+  mine: number;
+  row: number;
+  col: number;
+}
