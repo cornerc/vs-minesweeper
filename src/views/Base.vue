@@ -1,6 +1,11 @@
 <template>
   <div class="base">
-    <v-card color="green lighten-4" flat>
+    <configDialog
+      :dialog="configDialog"
+      :config="$store.getters.config"
+      @toggleDialog="toggleConfigDialog"
+    />
+    <v-card tile flat class="common">
       <v-toolbar dense flat :tile="false">
         <v-toolbar-title>VSマインスイーパー</v-toolbar-title>
         <v-spacer />
@@ -83,7 +88,7 @@ export default class Base extends Vue {
     {
       icon: "mdi-information",
       class: "",
-      click: () => this.toggleInfoDialog(),
+      click: this.toggleInfoDialog,
     },
     {
       icon: "mdi-refresh",
@@ -93,7 +98,7 @@ export default class Base extends Vue {
     {
       icon: "mdi-cog",
       class: "",
-      click: () => this.toggleConfigDialog(),
+      click: this.toggleConfigDialog,
     },
   ];
   sideMenuItems = [
@@ -113,19 +118,19 @@ export default class Base extends Vue {
       icon: "mdi-timer-outline",
       text: "Time Attack",
       class: "sidebar-content",
-      click: () => new Function(),
+      click: () => router.push("time-attack"),
     },
     {
       icon: "mdi-account-convert",
       text: "Turn",
       class: "sidebar-content",
-      click: () => new Function(),
+      click: () => router.push("turn"),
     },
     {
       icon: "mdi-timer",
       text: "Real Time Attack",
       class: "sidebar-content",
-      click: () => new Function(),
+      click: () => router.push("real-time"),
     },
   ];
   private timerId = 0;
@@ -156,6 +161,10 @@ export default class Base extends Vue {
 </script>
 
 <style scoped>
+.common {
+  z-index: 6;
+}
+
 .navigation-drawer {
   margin-top: 48px;
 }

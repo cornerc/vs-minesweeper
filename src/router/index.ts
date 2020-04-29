@@ -4,6 +4,7 @@ import About from "../views/About.vue";
 import Base from "../views/Base.vue";
 import Home from "../views/Home.vue";
 import Single from "../views/Single.vue";
+import ComingSoon from "../views/ComingSoon.vue";
 import Top from "../views/Top.vue";
 
 Vue.use(VueRouter);
@@ -21,6 +22,23 @@ const routes: RouteConfig[] = [
       {
         path: "/single",
         component: Single,
+      },
+      {
+        path: "/time-attack",
+        redirect: "/coming-soon",
+      },
+      {
+        path: "/turn",
+        redirect: "/coming-soon",
+      },
+      {
+        path: "/real-time",
+        redirect: "/coming-soon",
+      },
+
+      {
+        path: "/coming-soon",
+        component: ComingSoon,
       },
     ],
   },
