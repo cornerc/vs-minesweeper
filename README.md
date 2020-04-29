@@ -23,11 +23,4 @@ npm run lint
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
-## 機能一覧
 
-- ログイン
-- 1人対戦
-- マルチ対戦（ターン制）
-- マルチ対戦（リアルタイム制）
-- マルチ対戦（タイムアタック制）
-- 設定
