@@ -1,29 +1,24 @@
 <template>
   <div class="base">
-    <configDialog
-      :dialog="configDialog"
-      :config="$store.getters.config"
-      @toggleDialog="toggleConfigDialog"
-    />
     <v-card color="green lighten-4" flat>
       <v-toolbar dense flat :tile="false">
         <v-toolbar-title>VSマインスイーパー</v-toolbar-title>
-        <v-spacer></v-spacer>
+        <v-spacer />
         <v-icon>mdi-table</v-icon>
         <v-chip class="ma-2" label>
           {{ $store.getters.row }}&nbsp;×&nbsp;{{ $store.getters.col }}
         </v-chip>
-        <v-spacer></v-spacer>
+        <v-spacer />
         <v-icon>mdi-av-timer</v-icon>
-        <v-chip class="ma-2" label>{{
-          displayTime($store.getters.time)
-        }}</v-chip>
+        <v-chip class="ma-2" label>
+          {{ displayTime($store.getters.time) }}
+        </v-chip>
         <v-spacer></v-spacer>
         <v-icon>mdi-emoticon-cool-outline</v-icon>
         <v-chip class="ma-2" label>
           {{ $store.getters.remainMine }} / {{ $store.getters.mine }}
         </v-chip>
-        <v-spacer></v-spacer>
+        <v-spacer />
         <template v-for="item in headerRightItems">
           <v-btn :key="item.icon" icon @click.stop="item.click">
             <v-icon>{{ item.icon }}</v-icon>
@@ -59,9 +54,15 @@
     </v-card>
     <v-content>
       <v-container fluid>
-        <router-view></router-view>
+        <router-view />
       </v-container>
     </v-content>
+    <configDialog
+      :dialog="configDialog"
+      :config="$store.getters.config"
+      @toggleDialog="toggleConfigDialog"
+    />
+    <infoDialog :dialog="infoDialog" @toggleDialog="toggleInfoDialog" />
   </div>
 </template>
 
@@ -69,10 +70,12 @@
 import {Component, Vue, Watch} from "vue-property-decorator";
 import router from "@/router/index";
 import ConfigDialog from "@/views/ConfigDialog.vue";
+import InfoDialog from "@/views/InfoDialog.vue";
 
 @Component({
   components: {
     ConfigDialog,
+    InfoDialog,
   },
 })
 export default class Base extends Vue {
@@ -80,7 +83,7 @@ export default class Base extends Vue {
     {
       icon: "mdi-information",
       class: "",
-      click: () => new Function(),
+      click: () => this.toggleInfoDialog(),
     },
     {
       icon: "mdi-refresh",
@@ -129,6 +132,7 @@ export default class Base extends Vue {
   private drawer = false;
   private mini = true;
   private configDialog = false;
+  private infoDialog = false;
 
   toggleDrawer() {
     this.drawer = !this.drawer;
@@ -136,6 +140,9 @@ export default class Base extends Vue {
   }
   toggleConfigDialog() {
     this.configDialog = !this.configDialog;
+  }
+  toggleInfoDialog() {
+    this.infoDialog = !this.infoDialog;
   }
   displayTime(time: number) {
     return time;
