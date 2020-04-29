@@ -4,6 +4,7 @@ import About from "../views/About.vue";
 import Base from "../views/Base.vue";
 import Home from "../views/Home.vue";
 import Single from "../views/Single.vue";
+import Top from "../views/Top.vue";
 
 Vue.use(VueRouter);
 
@@ -13,6 +14,10 @@ const routes: RouteConfig[] = [
     name: "Base",
     component: Base,
     children: [
+      {
+        path: "/",
+        component: Top,
+      },
       {
         path: "/single",
         component: Single,
