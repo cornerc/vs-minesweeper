@@ -25,7 +25,6 @@ export default class ComingSoon extends Vue {
 
   mounted() {
     const index = Math.floor(Math.random() * this.comment.length);
-    console.log(index);
     this.displayComment = this.comment[index];
   }
 }

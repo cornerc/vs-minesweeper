@@ -7,25 +7,32 @@
     />
     <v-card tile flat class="common">
       <v-toolbar dense flat :tile="false">
-        <v-toolbar-title>VSマインスイーパー</v-toolbar-title>
+        <v-toolbar-title title="vs-minesweeper">
+          VSマインスイーパー
+        </v-toolbar-title>
         <v-spacer />
         <v-icon>mdi-table</v-icon>
-        <v-chip class="ma-2" label>
+        <v-chip class="ma-2" title="table" label>
           {{ $store.getters.row }}&nbsp;×&nbsp;{{ $store.getters.col }}
         </v-chip>
         <v-spacer />
         <v-icon>mdi-av-timer</v-icon>
-        <v-chip class="ma-2" label>
+        <v-chip class="ma-2" title="time" label>
           {{ displayTime($store.getters.time) }}
         </v-chip>
-        <v-spacer></v-spacer>
+        <v-spacer />
         <v-icon>mdi-emoticon-cool-outline</v-icon>
-        <v-chip class="ma-2" label>
+        <v-chip class="ma-2" title="mine" label>
           {{ $store.getters.remainMine }} / {{ $store.getters.mine }}
         </v-chip>
         <v-spacer />
         <template v-for="item in headerRightItems">
-          <v-btn :key="item.icon" icon @click.stop="item.click">
+          <v-btn
+            :key="item.title"
+            :title="item.title"
+            icon
+            @click.stop="item.click"
+          >
             <v-icon>{{ item.icon }}</v-icon>
           </v-btn>
         </template>
@@ -38,16 +45,20 @@
         permanent
       >
         <v-list>
-          <v-list-item link @click.stop="toggleDrawer">
+          <v-list-item @click.stop="toggleDrawer">
             <v-list-item-action>
-              <v-icon v-show="drawer">mdi-chevron-triple-right</v-icon>
-              <v-icon v-show="!drawer">mdi-chevron-triple-left</v-icon>
+              <v-icon v-show="drawer" title="open-sidebar">
+                mdi-chevron-triple-right
+              </v-icon>
+              <v-icon v-show="!drawer" title="close-sidebar">
+                mdi-chevron-triple-left
+              </v-icon>
             </v-list-item-action>
           </v-list-item>
           <template v-for="item in sideMenuItems">
-            <v-list-item :key="item.icon" link @click.stop="item.click">
+            <v-list-item :key="item.title" link @click.stop="item.click">
               <v-list-item-action>
-                <v-icon>{{ item.icon }}</v-icon>
+                <v-icon :title="item.title">{{ item.icon }}</v-icon>
               </v-list-item-action>
               <v-list-item-content :class="item.class">
                 <v-list-item-title>{{ item.text }}</v-list-item-title>
@@ -87,16 +98,19 @@ export default class Base extends Vue {
   headerRightItems = [
     {
       icon: "mdi-information",
+      title: "information",
       class: "",
       click: this.toggleInfoDialog,
     },
     {
       icon: "mdi-refresh",
+      title: "reload",
       class: "",
       click: this.refreshField,
     },
     {
       icon: "mdi-cog",
+      title: "setting",
       class: "",
       click: this.toggleConfigDialog,
     },
@@ -104,30 +118,35 @@ export default class Base extends Vue {
   sideMenuItems = [
     {
       icon: "mdi-home",
+      title: "top",
       text: "TOP",
       class: "sidebar-content",
       click: () => router.push("/"),
     },
     {
       icon: "mdi-account",
+      title: "single",
       text: "Single",
       class: "sidebar-content",
       click: () => router.push("single"),
     },
     {
       icon: "mdi-timer-outline",
+      title: "time attack",
       text: "Time Attack",
       class: "sidebar-content",
       click: () => router.push("time-attack"),
     },
     {
       icon: "mdi-account-convert",
+      title: "alternation",
       text: "Turn",
       class: "sidebar-content",
       click: () => router.push("turn"),
     },
     {
       icon: "mdi-timer",
+      title: "real time",
       text: "Real Time Attack",
       class: "sidebar-content",
       click: () => router.push("real-time"),
