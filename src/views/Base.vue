@@ -1,10 +1,5 @@
 <template>
   <div class="base">
-    <configDialog
-      :dialog="configDialog"
-      :config="$store.getters.config"
-      @toggleDialog="toggleConfigDialog"
-    />
     <v-card tile flat class="common">
       <v-toolbar dense flat :tile="false">
         <v-toolbar-title title="vs-minesweeper">
@@ -12,7 +7,12 @@
         </v-toolbar-title>
         <v-spacer />
         <v-icon>mdi-table</v-icon>
-        <v-chip class="ma-2" title="table" label>
+        <v-chip
+          class="ma-2"
+          title="table"
+          label
+          @click.stop="toggleConfigDialog"
+        >
           {{ $store.getters.row }}&nbsp;×&nbsp;{{ $store.getters.col }}
         </v-chip>
         <v-spacer />
@@ -22,7 +22,12 @@
         </v-chip>
         <v-spacer />
         <v-icon>mdi-emoticon-cool-outline</v-icon>
-        <v-chip class="ma-2" title="mine" label>
+        <v-chip
+          class="ma-2"
+          title="mine"
+          label
+          @click.stop="toggleConfigDialog"
+        >
           {{ $store.getters.remainMine }} / {{ $store.getters.mine }}
         </v-chip>
         <v-spacer />
