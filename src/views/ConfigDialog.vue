@@ -1,7 +1,7 @@
 <template>
   <v-dialog
     :value="dialog"
-    max-width="500px"
+    max-width="50%"
     @click:outside.stop="toggleDialog"
     @keydown.esc.stop="toggleDialog"
   >
