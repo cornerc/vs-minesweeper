@@ -12,7 +12,6 @@ Vue.use(VueRouter);
 const routes: RouteConfig[] = [
   {
     path: "/",
-    name: "Base",
     component: Base,
     children: [
       {
