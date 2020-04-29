@@ -12,6 +12,7 @@
           icon
           tile
           outlined
+          small
           @click.left.stop="openCell(itemsIdx, itemIdx)"
           @click.right.stop.prevent="toggleFlag(itemsIdx, itemIdx)"
         >
