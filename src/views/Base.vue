@@ -138,7 +138,9 @@ export default class Base extends Vue {
     this.configDialog = !this.configDialog;
   }
   displayTime(time: number) {
-    return time;
+    const minute = Math.floor(time / 60);
+    const second = time % 60;
+    return ("0" + minute).slice(-2) + ":" + ("0" + second).slice(-2);
   }
   refreshField() {
     this.$store.dispatch("initField");
