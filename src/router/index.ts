@@ -5,6 +5,7 @@ import Base from "../views/Base.vue";
 import Home from "../views/Home.vue";
 import Single from "../views/Single.vue";
 import ComingSoon from "../views/ComingSoon.vue";
+import Top from "../views/Top.vue";
 
 Vue.use(VueRouter);
 
@@ -15,6 +16,10 @@ const routes: RouteConfig[] = [
     component: Base,
     children: [
       {
+        path: "/",
+        component: Top,
+      },
+      {
         path: "/single",
         component: Single,
       },
@@ -24,7 +29,7 @@ const routes: RouteConfig[] = [
       },
       {
         path: "/turn",
-        redirect: "/single",
+        redirect: "/coming-soon",
       },
       {
         path: "/real-time",

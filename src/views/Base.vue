@@ -8,22 +8,22 @@
     <v-card tile flat class="common">
       <v-toolbar dense flat :tile="false">
         <v-toolbar-title>VSマインスイーパー</v-toolbar-title>
-        <v-spacer></v-spacer>
+        <v-spacer />
         <v-icon>mdi-table</v-icon>
         <v-chip class="ma-2" label>
           {{ $store.getters.row }}&nbsp;×&nbsp;{{ $store.getters.col }}
         </v-chip>
-        <v-spacer></v-spacer>
+        <v-spacer />
         <v-icon>mdi-av-timer</v-icon>
-        <v-chip class="ma-2" label>{{
-          displayTime($store.getters.time)
-        }}</v-chip>
+        <v-chip class="ma-2" label>
+          {{ displayTime($store.getters.time) }}
+        </v-chip>
         <v-spacer></v-spacer>
         <v-icon>mdi-emoticon-cool-outline</v-icon>
         <v-chip class="ma-2" label>
           {{ $store.getters.remainMine }} / {{ $store.getters.mine }}
         </v-chip>
-        <v-spacer></v-spacer>
+        <v-spacer />
         <template v-for="item in headerRightItems">
           <v-btn :key="item.icon" icon @click.stop="item.click">
             <v-icon>{{ item.icon }}</v-icon>
@@ -59,9 +59,15 @@
     </v-card>
     <v-content>
       <v-container fluid>
-        <router-view></router-view>
+        <router-view />
       </v-container>
     </v-content>
+    <configDialog
+      :dialog="configDialog"
+      :config="$store.getters.config"
+      @toggleDialog="toggleConfigDialog"
+    />
+    <infoDialog :dialog="infoDialog" @toggleDialog="toggleInfoDialog" />
   </div>
 </template>
 
@@ -69,10 +75,12 @@
 import {Component, Vue, Watch} from "vue-property-decorator";
 import router from "@/router/index";
 import ConfigDialog from "@/views/ConfigDialog.vue";
+import InfoDialog from "@/views/InfoDialog.vue";
 
 @Component({
   components: {
     ConfigDialog,
+    InfoDialog,
   },
 })
 export default class Base extends Vue {
@@ -80,7 +88,7 @@ export default class Base extends Vue {
     {
       icon: "mdi-information",
       class: "",
-      click: () => new Function(),
+      click: this.toggleInfoDialog,
     },
     {
       icon: "mdi-refresh",
@@ -90,7 +98,7 @@ export default class Base extends Vue {
     {
       icon: "mdi-cog",
       class: "",
-      click: () => this.toggleConfigDialog(),
+      click: this.toggleConfigDialog,
     },
   ];
   sideMenuItems = [
@@ -129,6 +137,7 @@ export default class Base extends Vue {
   private drawer = false;
   private mini = true;
   private configDialog = false;
+  private infoDialog = false;
 
   toggleDrawer() {
     this.drawer = !this.drawer;
@@ -137,8 +146,13 @@ export default class Base extends Vue {
   toggleConfigDialog() {
     this.configDialog = !this.configDialog;
   }
+  toggleInfoDialog() {
+    this.infoDialog = !this.infoDialog;
+  }
   displayTime(time: number) {
-    return time;
+    const minute = Math.floor(time / 60);
+    const second = time % 60;
+    return ("0" + minute).slice(-2) + ":" + ("0" + second).slice(-2);
   }
   refreshField() {
     this.$store.dispatch("initField");
