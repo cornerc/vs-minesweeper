@@ -1,10 +1,5 @@
 <template>
   <div class="base">
-    <configDialog
-      :dialog="configDialog"
-      :config="$store.getters.config"
-      @toggleDialog="toggleConfigDialog"
-    />
     <v-card tile flat class="common">
       <v-toolbar dense flat :tile="false">
         <v-toolbar-title title="vs-minesweeper">
@@ -12,7 +7,12 @@
         </v-toolbar-title>
         <v-spacer />
         <v-icon>mdi-table</v-icon>
-        <v-chip class="ma-2" title="table" label>
+        <v-chip
+          class="ma-2"
+          title="table"
+          label
+          @click.stop="toggleConfigDialog"
+        >
           {{ $store.getters.row }}&nbsp;×&nbsp;{{ $store.getters.col }}
         </v-chip>
         <v-spacer />
@@ -22,7 +22,12 @@
         </v-chip>
         <v-spacer />
         <v-icon>mdi-emoticon-cool-outline</v-icon>
-        <v-chip class="ma-2" title="mine" label>
+        <v-chip
+          class="ma-2"
+          title="mine"
+          label
+          @click.stop="toggleConfigDialog"
+        >
           {{ $store.getters.remainMine }} / {{ $store.getters.mine }}
         </v-chip>
         <v-spacer />
@@ -121,35 +126,35 @@ export default class Base extends Vue {
       title: "top",
       text: "TOP",
       class: "sidebar-content",
-      click: () => router.push("/"),
+      click: () => router.push("/", () => {}),
     },
     {
       icon: "mdi-account",
       title: "single",
       text: "Single",
       class: "sidebar-content",
-      click: () => router.push("single"),
+      click: () => router.push("single", () => {}),
     },
     {
       icon: "mdi-timer-outline",
       title: "time attack",
       text: "Time Attack",
       class: "sidebar-content",
-      click: () => router.push("time-attack"),
+      click: () => router.push("time-attack", () => {}),
     },
     {
       icon: "mdi-account-convert",
       title: "alternation",
       text: "Turn",
       class: "sidebar-content",
-      click: () => router.push("turn"),
+      click: () => router.push("turn", () => {}),
     },
     {
       icon: "mdi-timer",
       title: "real time",
       text: "Real Time Attack",
       class: "sidebar-content",
-      click: () => router.push("real-time"),
+      click: () => router.push("real-time", () => {}),
     },
   ];
   private timerId = 0;

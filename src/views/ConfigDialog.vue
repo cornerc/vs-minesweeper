@@ -12,61 +12,68 @@
 
       <v-card-text>
         <v-container>
-          <v-row>
-            <v-col cols="12" sm="12">
-              <div>テーマ</div>
-            </v-col>
-            <v-col cols="12" sm="6">
-              <v-checkbox v-model="theme" label="Light" value="Light" dense />
-            </v-col>
-            <v-col cols="12" sm="6">
-              <v-checkbox v-model="theme" label="Dark" value="Dark" dense />
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col cols="12" sm="12">
-              <div>フィールド</div>
-            </v-col>
-            <v-col cols="12" sm="5">
-              <v-text-field
-                v-model.number="innerConfig.row"
-                label="たて"
-                type="number"
-                dense
-              ></v-text-field>
-            </v-col>
-            <v-col cols="12" sm="2" align-self="center">
-              <v-icon>mdi-close-thick</v-icon>
-            </v-col>
-            <v-col cols="12" sm="5">
-              <v-text-field
-                v-model.number="innerConfig.col"
-                label="よこ"
-                type="number"
-                dense
-              ></v-text-field>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col cols="12" sm="6">
-              <v-text-field
-                v-model.number="innerConfig.mine"
-                label="マイン"
-                :hint="calcHint"
-                persistent-hint
-                dense
-                type="number"
-              ></v-text-field>
-            </v-col>
-            <v-col cols="12" sm="6"></v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <span class="note">
-                設定を保存するとプレイ中のフィールドは初期化されます
-              </span>
-            </v-col>
-          </v-row>
+          <v-form v-model="valid">
+            <v-row>
+              <v-col cols="12" sm="12">
+                <div>テーマ</div>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-checkbox v-model="theme" label="Light" value="light" dense />
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-checkbox v-model="theme" label="Dark" value="dark" dense />
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="12" sm="12">
+                <div>フィールド</div>
+              </v-col>
+              <v-col cols="12" sm="5">
+                <v-text-field
+                  v-model.number="innerConfig.row"
+                  :rules="rowRules"
+                  validate-on-blur
+                  label="たて"
+                  type="number"
+                  dense
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="2" align-self="center">
+                <v-icon>mdi-close-thick</v-icon>
+              </v-col>
+              <v-col cols="12" sm="5">
+                <v-text-field
+                  v-model.number="innerConfig.col"
+                  :rules="colRules"
+                  validate-on-blur
+                  label="よこ"
+                  type="number"
+                  dense
+                ></v-text-field>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="12" sm="6">
+                <v-text-field
+                  v-model.number="innerConfig.mine"
+                  :rules="mineRules"
+                  label="マイン"
+                  :hint="calcHint"
+                  persistent-hint
+                  dense
+                  type="number"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6"></v-col>
+            </v-row>
+            <v-row>
+              <v-col>
+                <span class="note">
+                  設定を保存するとプレイ中のフィールドは初期化されます
+                </span>
+              </v-col>
+            </v-row>
+          </v-form>
         </v-container>
       </v-card-text>
 
@@ -75,7 +82,7 @@
         <v-btn text @click.stop="toggleDialog">
           キャンセル
         </v-btn>
-        <v-btn text @click.stop="saveConfig">
+        <v-btn text :disabled="!valid" @click.stop="saveConfig">
           保存
         </v-btn>
       </v-card-actions>
@@ -84,7 +91,7 @@
 </template>
 
 <script lang="ts">
-import {Component, Emit, Prop, Vue} from "vue-property-decorator";
+import {Component, Emit, Prop, Vue, Watch} from "vue-property-decorator";
 import {Config} from "@/store/type";
 
 @Component
@@ -95,7 +102,24 @@ export default class ConfigDialog extends Vue {
   config: Config;
 
   private innerConfig: Config = Object.assign({}, this.config);
-  private theme = "Light";
+  private theme = this.$vuetify.theme.dark ? "dark" : "light";
+  private valid = true;
+  private rowRules = [
+    (v: number) => Number.isInteger(v) || "整数を入力してください",
+    (v: number) => v >= 10 || "10以上の整数を入力してください",
+    (v: number) => v <= 50 || "50以下の整数を入力してください",
+  ];
+  private colRules = [
+    (v: number) => Number.isInteger(v) || "整数を入力してください",
+    (v: number) => v >= 10 || "10以上の整数を入力してください",
+    (v: number) => v <= 50 || "50以下の整数を入力してください",
+  ];
+  private mineRules = [
+    (v: number) => Number.isInteger(v) || "整数を入力してください",
+    (v: number) => v >= 1 || "1以上の整数を入力してください",
+    (v: number) =>
+      v < this.cellAmount || "総セル数より小さい整数を入力してください",
+  ];
 
   get calcHint() {
     return (
@@ -106,14 +130,19 @@ export default class ConfigDialog extends Vue {
       "個です"
     );
   }
+  get cellAmount() {
+    return this.innerConfig.row * this.innerConfig.col;
+  }
   get adviseMineMin() {
-    return Math.round(this.innerConfig.row * this.innerConfig.col * (12 / 100));
+    return Math.round(this.cellAmount * (12 / 100));
   }
   get adviseMineMax() {
-    return Math.round(this.innerConfig.row * this.innerConfig.col * (20 / 100));
+    return Math.round(this.cellAmount * (20 / 100));
   }
 
   saveConfig() {
+    //TODO: themeもstoreかlocalstorageで管理
+    this.$vuetify.theme.dark = this.theme === "dark";
     this.$store.dispatch("setConfig", this.innerConfig);
     this.toggleDialog();
   }

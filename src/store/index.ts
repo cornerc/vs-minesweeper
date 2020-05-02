@@ -39,13 +39,13 @@ export default new Vuex.Store({
     setCell(state, {row, col, cell}): void {
       state.field[row].splice(col, 1, cell);
     },
-    setTime(state, time) {
+    setTime(state, time): void {
       state.time = time;
     },
-    setTimerId(state, timerId) {
+    setTimerId(state, timerId): void {
       state.timerId = timerId;
     },
-    setConfig(state, config) {
+    setConfig(state, config): void {
       Object.assign(state.config, config);
     },
   },
