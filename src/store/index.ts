@@ -1,8 +1,22 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import {Config} from "./type";
+import createPersistedState from "vuex-persistedstate";
+import Cookies from "js-cookie";
 
 Vue.use(Vuex);
+
+const options = {
+  reducer: (state: any) => ({
+    config: state.config,
+  }),
+  storage: {
+    getItem: (key: string) => Cookies.get(key),
+    setItem: (key: string, value: string) =>
+      Cookies.set(key, value, {expires: 1}),
+    removeItem: (key: string) => Cookies.remove(key),
+  },
+};
 
 export default new Vuex.Store({
   state: {
@@ -189,4 +203,5 @@ export default new Vuex.Store({
     },
   },
   modules: {},
+  plugins: [createPersistedState(options)],
 });
