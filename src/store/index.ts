@@ -21,6 +21,7 @@ const options = {
 export default new Vuex.Store({
   state: {
     field: new Array(),
+    openMap: new Array(),
     config: {
       mine: 40,
       row: 20,
@@ -32,6 +33,7 @@ export default new Vuex.Store({
   },
   getters: {
     field: state => state.field,
+    openMap: state => state.openMap,
     config: state => state.config,
     mine: state => state.config.mine,
     row: state => state.config.row,
@@ -41,14 +43,18 @@ export default new Vuex.Store({
       getters.mine - state.field.flat().filter(cell => cell.isFlag).length,
     remainNotOpen: state =>
       state.field.flat().filter(cell => !cell.isOpen).length,
-    isGameClear: (state, getters) => getters.mine === getters.remainNotOpen,
-    isStart: (state, getters) =>
-      getters.row * getters.col !==
-      state.field.flat().filter(cell => !cell.isOpen).length,
+    emptyCell: state =>
+      state.field.flat().filter(cell => cell.aroundMines === 0).length,
+    isGameClear: (_, getters) => getters.mine === getters.remainNotOpen,
+    isStart: (_, getters) =>
+      getters.row * getters.col !== getters.remainNotOpen,
   },
   mutations: {
     setField(state, field): void {
       state.field = field;
+    },
+    setOpenMap(state, map): void {
+      state.openMap = map;
     },
     setCell(state, {row, col, cell}): void {
       state.field[row].splice(col, 1, cell);
@@ -68,7 +74,7 @@ export default new Vuex.Store({
       // initialize
       ctx.dispatch("stopTimer");
       ctx.dispatch("initTime");
-      let initCell = {
+      const initCell = {
         isOpen: false,
         isFlag: false,
         isLandMine: false,
@@ -83,8 +89,8 @@ export default new Vuex.Store({
         if (i < ctx.getters.mine) {
           mineList[i] = true;
         }
-        let r = Math.floor(Math.random() * (i + 1));
-        let tmp = mineList[i];
+        const r = Math.floor(Math.random() * (i + 1));
+        const tmp = mineList[i];
         mineList[i] = mineList[r];
         mineList[r] = tmp;
       }
@@ -118,23 +124,104 @@ export default new Vuex.Store({
           }
         }
       }
+      // create open map
+      let openMap = [];
+      idx = 0;
+      for (let i = 0; i < ctx.getters.row; i++) {
+        for (let j = 0; j < ctx.getters.col; j++) {
+          if (field[i][j].aroundMines === 0) {
+            openMap.push({group: idx++, row: i, col: j});
+          }
+        }
+      }
+      for (let i = 0; i < openMap.length; i++) {
+        const target = Object.assign({}, openMap[i]);
+        const isAdjacent = openMap.findIndex(
+          el => el.row === target.row + 1 && el.col === target.col
+        );
+        if (isAdjacent >= 0) {
+          openMap[isAdjacent].group = target.group;
+        }
+      }
+      for (let i = 0; i < openMap.length; i++) {
+        const target = Object.assign({}, openMap[i]);
+        const isAdjacent = openMap.findIndex(
+          el => el.row === target.row && el.col === target.col + 1
+        );
+        if (isAdjacent >= 0) {
+          const updateTarget = Object.assign({}, openMap[isAdjacent]);
+          openMap.map(val => {
+            if (val.group === updateTarget.group) {
+              val.group = target.group;
+              return val;
+            }
+            return val;
+          });
+        }
+      }
       ctx.commit("setField", field);
+      ctx.commit("setOpenMap", openMap);
     },
     setField(ctx, field): void {
       ctx.commit("setField", field);
     },
-    openCell(ctx, {row, col}) {
-      const originCell = ctx.state.field[row][col];
-      const cell = {
-        isOpen: true,
-        isFlag: originCell.isFlag,
-        isLandMine: originCell.isLandMine,
-        aroundMines: originCell.aroundMines,
-      };
-      ctx.commit("setCell", {row, col, cell});
+    openCell(ctx, {row, col}): void {
+      const originCell = ctx.getters.field[row][col];
+      if (originCell.aroundMines === 0) {
+        ctx.dispatch("openCellFromOpenMap", {row, col});
+      } else {
+        const cell = {
+          isOpen: true,
+          isFlag: originCell.isFlag,
+          isLandMine: originCell.isLandMine,
+          aroundMines: originCell.aroundMines,
+        };
+        ctx.commit("setCell", {row, col, cell});
+      }
     },
-    openCellAll(ctx) {
-      let field = ctx.state.field;
+    openCellFromOpenMap(ctx, {row, col}): void {
+      const openMap = ctx.getters.openMap;
+      const cellIndex = openMap.findIndex(
+        (val: any) => val.row === row && val.col === col
+      );
+      const openCells = openMap.filter(
+        (val: any) => val.group === openMap[cellIndex].group
+      );
+      const field = ctx.getters.field.concat();
+      for (let i = 0; i < openCells.length; i++) {
+        const targetRow = openCells[i].row;
+        const targetCol = openCells[i].col;
+        for (let k = targetRow - 1; k <= targetRow + 1; k++) {
+          if (k < 0 || k >= ctx.getters.row) {
+            continue;
+          }
+          for (let l = targetCol - 1; l <= targetCol + 1; l++) {
+            if (l < 0 || l >= ctx.getters.col) {
+              continue;
+            }
+            if (field[k][l].isOpen || field[k][l].isFlag) {
+              continue;
+            }
+            const checkContainOpenMap = openCells.findIndex(
+              (val: any) => val.row === k && val.col === l
+            );
+            if (checkContainOpenMap < 0 && field[k][l].aroundMines === 0) {
+              ctx.dispatch("openCellFromOpenMap", {row: k, col: l});
+            } else {
+              field[k][l] = {
+                isOpen: true,
+                isFlag: field[k][l].isFlag,
+                isLandMine: field[k][l].isLandMine,
+                aroundMines: field[k][l].aroundMines,
+              };
+            }
+          }
+        }
+      }
+      ctx.commit("setField", field);
+    },
+    openCellAll(ctx): void {
+      let field = ctx.getters.field.concat();
       for (let i = 0; i < ctx.getters.row; i++) {
         for (let j = 0; j < ctx.getters.col; j++) {
           field[i][j] = {
@@ -147,31 +234,8 @@ export default new Vuex.Store({
       }
       ctx.commit("setField", field);
     },
-    chainOpenCell(ctx, {row, col}) {
-      const originalCell = ctx.getters.field[row][col];
-      if (originalCell.aroundMines !== 0) {
-        return;
-      }
-      for (let i = row - 1; i <= row + 1; i++) {
-        if (i < 0 || i >= ctx.getters.row) {
-          continue;
-        }
-        for (let j = col - 1; j <= col + 1; j++) {
-          if (j < 0 || j >= ctx.getters.col || (i === row && j === col)) {
-            continue;
-          }
-          let cell = ctx.getters.field[i][j];
-          if (cell.isLandMine || cell.isFlag || cell.isOpen) {
-            continue;
-          }
-          ctx.dispatch("openCell", {row: i, col: j});
-          ctx.dispatch("chainOpenCell", {row: i, col: j});
-        }
-      }
-      return;
-    },
-    toggleFlag(ctx, {row, col}) {
-      const originCell = ctx.state.field[row][col];
+    toggleFlag(ctx, {row, col}): void {
+      const originCell = ctx.getters.field[row][col];
       const cell = {
         isOpen: originCell.isOpen,
         isFlag: !originCell.isFlag,
@@ -180,24 +244,24 @@ export default new Vuex.Store({
       };
       ctx.commit("setCell", {row, col, cell});
     },
-    tickTime(ctx) {
+    tickTime(ctx): void {
       ctx.commit("setTime", ctx.getters.time + 1);
     },
-    startTimer(ctx) {
+    startTimer(ctx): void {
       const timerId = window.setInterval(() => {
         ctx.dispatch("tickTime");
       }, 1000);
       ctx.commit("setTimerId", timerId);
     },
-    stopTimer(ctx) {
+    stopTimer(ctx): void {
       const timerId = ctx.state.timerId;
       window.clearInterval(timerId);
       ctx.commit("setTimerId", 0);
     },
-    initTime(ctx) {
+    initTime(ctx): void {
       ctx.commit("setTime", 0);
     },
-    setConfig(ctx, config: Config) {
+    setConfig(ctx, config: Config): void {
       ctx.commit("setConfig", config);
       ctx.dispatch("initField");
     },
