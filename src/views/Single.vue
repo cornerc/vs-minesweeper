@@ -71,18 +71,18 @@ export default class Single extends Vue {
     if (cell.isFlag || cell.isOpen) {
       return;
     }
-    if (!this.$store.getters.isStart) {
-      // TODO:初期クリックでは、空白を選択するようにする。
-      this.$store.dispatch("startTimer");
-    }
     // ゲームオーバー判定
     if (cell.isLandMine) {
       this.$store.dispatch("stopTimer");
       this.$store.dispatch("openCellAll");
       this.showSnackbar("あなたは戦死しました。");
+      return;
+    }
+    if (!this.$store.getters.isStart) {
+      // TODO:初期クリックでは、空白を選択するようにする。
+      this.$store.dispatch("startTimer");
     }
     this.$store.dispatch("openCell", {row, col});
-    this.$store.dispatch("chainOpenCell", {row, col});
   }
   toggleFlag(row: number, col: number) {
     const cell = this.$store.getters.field[row][col];
