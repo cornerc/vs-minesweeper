@@ -177,7 +177,7 @@ export default class Base extends Vue {
     return ("0" + minute).slice(-2) + ":" + ("0" + second).slice(-2);
   }
   refreshField() {
-    this.$store.dispatch("initField");
+    this.$store.dispatch("initClearField");
   }
 }
 </script>

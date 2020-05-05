@@ -70,7 +70,21 @@ export default new Vuex.Store({
     },
   },
   actions: {
-    initField(ctx): void {
+    initClearField(ctx): void {
+      ctx.dispatch("stopTimer");
+      ctx.dispatch("initTime");
+      const initCell = {
+        isOpen: false,
+        isFlag: false,
+        isLandMine: false,
+        aroundMines: 0,
+      };
+      let field = new Array(ctx.getters.row)
+        .fill("")
+        .map(() => new Array(ctx.getters.col).fill(initCell));
+      ctx.commit("setField", field);
+    },
+    initFieldFromClick(ctx, {row, col}): void {
       // initialize
       ctx.dispatch("stopTimer");
       ctx.dispatch("initTime");
@@ -93,6 +107,17 @@ export default new Vuex.Store({
         const tmp = mineList[i];
         mineList[i] = mineList[r];
         mineList[r] = tmp;
+      }
+      const clickCell: number = row * ctx.getters.col + col;
+      // if first click is mine
+      if (mineList[clickCell] === true) {
+        for (let i = 0; i < mineList.length; i++) {
+          if (mineList[i] === false) {
+            mineList[i] = true;
+            mineList[clickCell] = false;
+            break;
+          }
+        }
       }
       let idx = 0;
       for (let i = 0; i < ctx.getters.row; i++) {
@@ -161,6 +186,7 @@ export default new Vuex.Store({
       }
       ctx.commit("setField", field);
       ctx.commit("setOpenMap", openMap);
+      ctx.dispatch("openCell", {row, col});
     },
     setField(ctx, field): void {
       ctx.commit("setField", field);
@@ -263,7 +289,7 @@ export default new Vuex.Store({
     },
     setConfig(ctx, config: Config): void {
       ctx.commit("setConfig", config);
-      ctx.dispatch("initField");
+      ctx.dispatch("initClearField");
     },
   },
   modules: {},
