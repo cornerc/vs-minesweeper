@@ -13,7 +13,7 @@
           label
           @click.stop="toggleConfigDialog"
         >
-          {{ $store.getters.row }}&nbsp;×&nbsp;{{ $store.getters.col }}
+          {{ $store.getters.row }} × {{ $store.getters.col }}
         </v-chip>
         <v-spacer />
         <v-icon>mdi-av-timer</v-icon>
@@ -51,14 +51,12 @@
       >
         <v-list>
           <v-list-item @click.stop="toggleDrawer">
-            <v-list-item-action>
-              <v-icon v-show="drawer" title="open-sidebar">
-                mdi-chevron-triple-right
-              </v-icon>
-              <v-icon v-show="!drawer" title="close-sidebar">
-                mdi-chevron-triple-left
-              </v-icon>
-            </v-list-item-action>
+            <v-icon v-show="drawer" title="open-sidebar">
+              mdi-chevron-triple-right
+            </v-icon>
+            <v-icon v-show="!drawer" title="close-sidebar">
+              mdi-chevron-triple-left
+            </v-icon>
           </v-list-item>
           <template v-for="item in sideMenuItems">
             <v-list-item :key="item.title" link @click.stop="item.click">
