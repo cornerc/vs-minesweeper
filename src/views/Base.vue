@@ -123,35 +123,35 @@ export default class Base extends Vue {
       icon: "mdi-home",
       title: "top",
       text: "TOP",
-      class: "sidebar-content",
+      class: "",
       click: () => router.push("/", () => {}),
     },
     {
       icon: "mdi-account",
       title: "single",
       text: "Single",
-      class: "sidebar-content",
+      class: "",
       click: () => router.push("single", () => {}),
     },
     {
       icon: "mdi-timer-outline",
       title: "time attack",
       text: "Time Attack",
-      class: "sidebar-content",
+      class: "",
       click: () => router.push("time-attack", () => {}),
     },
     {
       icon: "mdi-account-convert",
       title: "alternation",
       text: "Turn",
-      class: "sidebar-content",
+      class: "",
       click: () => router.push("turn", () => {}),
     },
     {
       icon: "mdi-timer",
       title: "real time",
       text: "Real Time Attack",
-      class: "sidebar-content",
+      class: "",
       click: () => router.push("real-time", () => {}),
     },
   ];
@@ -177,7 +177,7 @@ export default class Base extends Vue {
     return ("0" + minute).slice(-2) + ":" + ("0" + second).slice(-2);
   }
   refreshField() {
-    this.$store.dispatch("initField");
+    this.$store.dispatch("initClearField");
   }
 }
 </script>
@@ -189,9 +189,5 @@ export default class Base extends Vue {
 
 .navigation-drawer {
   margin-top: 48px;
-}
-
-.sidebar-content {
-  margin-left: 10px;
 }
 </style>

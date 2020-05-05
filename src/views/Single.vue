@@ -71,16 +71,17 @@ export default class Single extends Vue {
     if (cell.isFlag || cell.isOpen) {
       return;
     }
+    if (!this.$store.getters.isStart) {
+      this.$store.dispatch("initFieldFromClick", {row, col});
+      this.$store.dispatch("startTimer");
+      return;
+    }
     // ゲームオーバー判定
     if (cell.isLandMine) {
       this.$store.dispatch("stopTimer");
       this.$store.dispatch("openCellAll");
       this.showSnackbar("あなたは戦死しました。");
       return;
-    }
-    if (!this.$store.getters.isStart) {
-      // TODO:初期クリックでは、空白を選択するようにする。
-      this.$store.dispatch("startTimer");
     }
     this.$store.dispatch("openCell", {row, col});
   }
@@ -97,7 +98,7 @@ export default class Single extends Vue {
     this.snackbar.isOpen = true;
   }
   created() {
-    this.$store.dispatch("initField");
+    this.$store.dispatch("initClearField");
   }
 }
 </script>
