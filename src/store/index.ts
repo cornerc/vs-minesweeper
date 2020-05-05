@@ -136,25 +136,25 @@ export default new Vuex.Store({
       }
       for (let i = 0; i < openMap.length; i++) {
         const target = Object.assign({}, openMap[i]);
-        const isAdjacent = openMap.findIndex(
-          el => el.row === target.row + 1 && el.col === target.col
+        const isAdjacentRow = openMap.findIndex(
+          val => val.row === target.row + 1 && val.col === target.col
         );
-        if (isAdjacent >= 0) {
-          openMap[isAdjacent].group = target.group;
-        }
-      }
-      for (let i = 0; i < openMap.length; i++) {
-        const target = Object.assign({}, openMap[i]);
-        const isAdjacent = openMap.findIndex(
-          el => el.row === target.row && el.col === target.col + 1
-        );
-        if (isAdjacent >= 0) {
-          const updateTarget = Object.assign({}, openMap[isAdjacent]);
+        if (isAdjacentRow >= 0) {
+          const updateTarget = Object.assign({}, openMap[isAdjacentRow]);
           openMap.map(val => {
-            if (val.group === updateTarget.group) {
-              val.group = target.group;
-              return val;
-            }
+            val.group =
+              val.group === updateTarget.group ? target.group : val.group;
+            return val;
+          });
+        }
+        const isAdjacentCol = openMap.findIndex(
+          val => val.row === target.row && val.col === target.col + 1
+        );
+        if (isAdjacentCol >= 0) {
+          const updateTarget = Object.assign({}, openMap[isAdjacentCol]);
+          openMap.map(val => {
+            val.group =
+              val.group === updateTarget.group ? target.group : val.group;
             return val;
           });
         }
@@ -166,15 +166,15 @@ export default new Vuex.Store({
       ctx.commit("setField", field);
     },
     openCell(ctx, {row, col}): void {
-      const originCell = ctx.getters.field[row][col];
-      if (originCell.aroundMines === 0) {
+      const targetCell = ctx.getters.field[row][col];
+      if (targetCell.aroundMines === 0) {
         ctx.dispatch("openCellFromOpenMap", {row, col});
       } else {
         const cell = {
           isOpen: true,
-          isFlag: originCell.isFlag,
-          isLandMine: originCell.isLandMine,
-          aroundMines: originCell.aroundMines,
+          isFlag: targetCell.isFlag,
+          isLandMine: targetCell.isLandMine,
+          aroundMines: targetCell.aroundMines,
         };
         ctx.commit("setCell", {row, col, cell});
       }
