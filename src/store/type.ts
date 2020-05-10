@@ -13,6 +13,7 @@ export interface Cell {
 }
 
 export interface Config {
+  darkTheme: boolean;
   mine: number;
   row: number;
   col: number;

@@ -179,6 +179,9 @@ export default class Base extends Vue {
   refreshField() {
     this.$store.dispatch("initClearField");
   }
+  created() {
+    this.$store.dispatch("setConfig", this.$store.getters.config);
+  }
 }
 </script>
 
