@@ -3,6 +3,7 @@ import Vuex from "vuex";
 import {Config} from "./type";
 import createPersistedState from "vuex-persistedstate";
 import Cookies from "js-cookie";
+import vuetify from "@/plugins/vuetify";
 
 Vue.use(Vuex);
 
@@ -23,6 +24,7 @@ export default new Vuex.Store({
     field: new Array(),
     openMap: new Array(),
     config: {
+      darkTheme: false,
       mine: 40,
       row: 20,
       col: 18,
@@ -288,6 +290,7 @@ export default new Vuex.Store({
       ctx.commit("setTime", 0);
     },
     setConfig(ctx, config: Config): void {
+      vuetify.framework.theme.dark = config.darkTheme;
       ctx.commit("setConfig", config);
       ctx.dispatch("initClearField");
     },
