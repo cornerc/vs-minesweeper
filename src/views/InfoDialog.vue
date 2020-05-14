@@ -1,7 +1,7 @@
 <template>
   <v-dialog
     :value="dialog"
-    max-width="50%"
+    max-width="70%"
     @click:outside.stop="toggleDialog"
     @keydown.esc.stop="toggleDialog"
   >
@@ -23,6 +23,22 @@
               右クリック・・・選択したセルに旗を立てることができます
             </v-col>
           </v-row>
+        </v-container>
+      </v-card-text>
+      <v-card-title class="headline">
+        スコアについて
+      </v-card-title>
+      <v-card-text>
+        <v-container>
+          スコア算出には3BV(Bechtel's Board Benchmark Value)
+          という、クリアに必要な最小クリック数を表す指標を使用しています。
+          <div class="ma-2">
+            <var>3BV/s</var> =
+            <var>クリアに必要な最小クリック数／クリアタイム(秒)</var>
+          </div>
+          盤面の大きさが異なってもスコアの比較ができる指標になっています。
+          (ただし盤面が大きいほど高いスコアになりやすい傾向があります)<br />
+          スコアは、最後にプレイしてから約7日間保存されます。
         </v-container>
       </v-card-text>
 
