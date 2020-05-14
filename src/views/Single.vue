@@ -20,6 +20,28 @@
         </v-btn>
       </span>
     </div>
+    <div class="score">
+      <v-alert v-if="scoreAlert" dismissible>
+        <template #close>
+          <v-btn icon class="mx-1" @click.stop="toggleScoreAlert">
+            <v-icon>mdi-crown</v-icon>
+          </v-btn>
+        </template>
+        <span class="title">マイスコア</span>
+        <br />
+        <span v-for="(item, idx) in $store.getters.scoreRanking" :key="idx">
+          <div class="my-1 body-1">
+            {{ idx + 1 }}位｜3BV/s：
+            {{ display3BVs(item.BBBVs) }}
+            ({{ displayDate(item.date) }})
+          </div>
+          <hr />
+        </span>
+      </v-alert>
+      <v-btn v-else icon @click.stop="toggleScoreAlert">
+        <v-icon>mdi-crown</v-icon>
+      </v-btn>
+    </div>
   </div>
 </template>
 
@@ -33,6 +55,7 @@ export default class Single extends Vue {
     text: "",
   };
   private timerId = 0;
+  private scoreAlert = false;
 
   // クリア判定
   @Watch("$store.getters.isGameClear")
@@ -40,7 +63,8 @@ export default class Single extends Vue {
     if (this.$store.getters.isGameClear) {
       this.$store.dispatch("stopTimer");
       this.$store.dispatch("openCellAll");
-      this.showSnackbar("おめでとうございます。クリアしました。");
+      this.$store.dispatch("registerHistory");
+      this.showSnackbar("clear");
     }
   }
 
@@ -71,6 +95,7 @@ export default class Single extends Vue {
     if (cell.isFlag || cell.isOpen) {
       return;
     }
+    // 初クリック判定
     if (!this.$store.getters.isStart) {
       this.$store.dispatch("initFieldFromClick", {row, col});
       this.$store.dispatch("startTimer");
@@ -80,7 +105,7 @@ export default class Single extends Vue {
     if (cell.isLandMine) {
       this.$store.dispatch("stopTimer");
       this.$store.dispatch("openCellAll");
-      this.showSnackbar("あなたは戦死しました。");
+      this.showSnackbar("gameOver");
       return;
     }
     this.$store.dispatch("openCell", {row, col});
@@ -93,9 +118,26 @@ export default class Single extends Vue {
     }
     this.$store.dispatch("toggleFlag", {row, col});
   }
-  showSnackbar(text: string) {
-    this.snackbar.text = text;
+  showSnackbar(type: string) {
+    if (type === "clear") {
+      this.snackbar.text =
+        "おめでとうございます。クリアしました！" +
+        "スコア：" +
+        this.display3BVs(this.$store.getters.BBBVs);
+    } else {
+      this.snackbar.text = "あなたは戦死しました。";
+    }
+
     this.snackbar.isOpen = true;
+  }
+  toggleScoreAlert() {
+    this.scoreAlert = !this.scoreAlert;
+  }
+  displayDate(date: string) {
+    return date.slice(5, 14);
+  }
+  display3BVs(BBBVs: number) {
+    return Math.round(BBBVs * 1000) / 1000;
   }
   created() {
     this.$store.dispatch("initClearField");
@@ -103,4 +145,10 @@ export default class Single extends Vue {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.score {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+}
+</style>

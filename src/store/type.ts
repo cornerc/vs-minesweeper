@@ -18,3 +18,9 @@ export interface Config {
   row: number;
   col: number;
 }
+
+export interface OpenMap {
+  row: number;
+  col: number;
+  group: number;
+}
