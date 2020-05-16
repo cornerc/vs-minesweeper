@@ -14,7 +14,7 @@ const options = {
       Cookies.set(key, value, {expires: 7}),
     removeItem: (key: string) => Cookies.remove(key),
   },
-  paths: ["config", "history"],
+  paths: ["config", "historys"],
 };
 
 export default new Vuex.Store({
@@ -27,7 +27,7 @@ export default new Vuex.Store({
       row: 20,
       col: 18,
     },
-    history: new Array(),
+    historys: new Array(),
     time: 0,
     timerId: 0,
   },
@@ -39,7 +39,7 @@ export default new Vuex.Store({
     row: state => state.config.row,
     col: state => state.config.col,
     time: state => state.time,
-    history: state => state.history,
+    historys: state => state.historys,
     remainMine: (state, getters) =>
       getters.mine - state.field.flat().filter(cell => cell.isFlag).length,
     remainNotOpen: state =>
@@ -86,8 +86,6 @@ export default new Vuex.Store({
     BBBV: (_, getters) => getters.openMapLength + getters.aroundMineCell,
     BBBVs: (_, getters) =>
       getters.time === 0 ? 0 : getters.BBBV / getters.time,
-    scoreRanking: (_, getters) =>
-      getters.history.sort((a: any, b: any) => b.BBBVs - a.BBBVs).slice(0, 5),
   },
   mutations: {
     setField(state, field): void {
@@ -108,8 +106,8 @@ export default new Vuex.Store({
     setConfig(state, config): void {
       Object.assign(state.config, config);
     },
-    registerHistory(state, history): void {
-      state.history.push(history);
+    setHistorys(state, history): void {
+      state.historys = history;
     },
   },
   actions: {
@@ -331,13 +329,23 @@ export default new Vuex.Store({
       ctx.dispatch("initClearField");
     },
     registerHistory(ctx): void {
+      let historys = ctx.getters.historys.concat();
       const history = {
         time: ctx.getters.time,
-        date: new Date().toLocaleString(),
+        date: new Date().toLocaleString("ja", {
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
         BBBV: ctx.getters.BBBV,
         BBBVs: ctx.getters.BBBVs,
       };
-      ctx.commit("registerHistory", history);
+      historys.push(history);
+      ctx.commit(
+        "setHistorys",
+        historys.sort((a: any, b: any) => b.BBBVs - a.BBBVs).slice(0, 5)
+      );
     },
   },
   modules: {},
