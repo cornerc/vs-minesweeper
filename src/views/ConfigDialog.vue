@@ -1,6 +1,7 @@
 <template>
   <v-dialog
     :value="dialog"
+    :transition="transition"
     max-width="50%"
     @click:outside.stop="toggleDialog"
     @keydown.esc.stop="toggleDialog"
@@ -101,6 +102,8 @@ export default class ConfigDialog extends Vue {
   dialog: boolean;
   @Prop({type: Object, default: {}})
   config: Config;
+  @Prop({type: [String, Boolean], default: "dialog-transition"})
+  transition: string | boolean;
 
   private innerConfig: Config = Object.assign({}, this.config);
   private valid = true;
