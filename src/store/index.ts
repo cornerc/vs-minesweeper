@@ -3,7 +3,7 @@ import Vuex from "vuex";
 import {Config} from "./type";
 import createPersistedState from "vuex-persistedstate";
 import Cookies from "js-cookie";
-import vuetify from "@/plugins/vuetify";
+import vuetify from "@/plugins/vuetify/vuetify";
 
 Vue.use(Vuex);
 
