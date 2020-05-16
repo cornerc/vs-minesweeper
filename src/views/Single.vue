@@ -6,15 +6,15 @@
         閉じる
       </v-btn>
     </v-snackbar>
-    <div v-for="(items, itemsIdx) in $store.getters.field" :key="itemsIdx">
-      <span v-for="(item, itemIdx) in items" :key="itemsIdx + '_' + itemIdx">
+    <div v-for="(items, i) in $store.getters.field" :key="i">
+      <span v-for="(item, j) in items" :key="i + '-' + j">
         <v-btn
           icon
           tile
-          outlined
           small
-          @click.left.stop="openCell(itemsIdx, itemIdx)"
-          @click.right.stop.prevent="toggleFlag(itemsIdx, itemIdx)"
+          :class="setFieldClass(item, i + j)"
+          @click.left.stop="openCell(i, j)"
+          @click.right.stop.prevent="toggleFlag(i, j)"
         >
           <v-icon>{{ setFieldIcon(item) }}</v-icon>
         </v-btn>
@@ -83,12 +83,28 @@ export default class Single extends Vue {
       if (item.aroundMines) {
         return "mdi-numeric-" + item.aroundMines.toString();
       }
-      return "mdi-crop-free";
+      return;
     }
     if (item.isFlag) {
       return "mdi-flag-triangle";
     }
     return;
+  }
+  setFieldClass(item: any, totalIdx: number) {
+    let open = "";
+    let even = "";
+    let theme = "";
+
+    if (item.isOpen) {
+      open = "--open";
+    }
+    if (totalIdx % 2) {
+      even = "--odd";
+    }
+    if (this.$store.getters.config.darkTheme) {
+      theme = "--dark";
+    }
+    return "cell" + open + even + theme;
   }
   openCell(row: number, col: number) {
     const cell = this.$store.getters.field[row][col];
@@ -145,10 +161,35 @@ export default class Single extends Vue {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .score {
   position: absolute;
   top: 12px;
   right: 16px;
+}
+
+.cell {
+  &--open {
+    &--odd {
+      &--dark {
+        background-color: var(--v-accent-darken2);
+      }
+      background-color: var(--v-accent-lighten2);
+    }
+    &--dark {
+      background-color: var(--v-accent-darken3);
+    }
+    background-color: var(--v-accent-lighten3);
+  }
+  &--odd {
+    &--dark {
+      background-color: var(--v-primary-darken1);
+    }
+    background-color: var(--v-primary-lighten1);
+  }
+  &--dark {
+    background-color: var(--v-primary-darken2);
+  }
+  background-color: var(--v-primary-lighten2);
 }
 </style>
