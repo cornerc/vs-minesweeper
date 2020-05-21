@@ -13,7 +13,14 @@ export interface Cell {
 }
 
 export interface Config {
+  darkTheme: boolean;
   mine: number;
   row: number;
   col: number;
+}
+
+export interface OpenMap {
+  row: number;
+  col: number;
+  group: number;
 }

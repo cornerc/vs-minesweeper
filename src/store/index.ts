@@ -3,19 +3,18 @@ import Vuex from "vuex";
 import {Config} from "./type";
 import createPersistedState from "vuex-persistedstate";
 import Cookies from "js-cookie";
+import vuetify from "@/plugins/vuetify/vuetify";
 
 Vue.use(Vuex);
 
 const options = {
-  reducer: (state: any) => ({
-    config: state.config,
-  }),
   storage: {
     getItem: (key: string) => Cookies.get(key),
     setItem: (key: string, value: string) =>
-      Cookies.set(key, value, {expires: 1}),
+      Cookies.set(key, value, {expires: 7}),
     removeItem: (key: string) => Cookies.remove(key),
   },
+  paths: ["config", "historys"],
 };
 
 export default new Vuex.Store({
@@ -23,13 +22,14 @@ export default new Vuex.Store({
     field: new Array(),
     openMap: new Array(),
     config: {
+      darkTheme: false,
       mine: 40,
       row: 20,
       col: 18,
     },
+    historys: new Array(),
     time: 0,
     timerId: 0,
-    disabled: false,
   },
   getters: {
     field: state => state.field,
@@ -39,15 +39,53 @@ export default new Vuex.Store({
     row: state => state.config.row,
     col: state => state.config.col,
     time: state => state.time,
+    historys: state => state.historys,
     remainMine: (state, getters) =>
       getters.mine - state.field.flat().filter(cell => cell.isFlag).length,
     remainNotOpen: state =>
       state.field.flat().filter(cell => !cell.isOpen).length,
     emptyCell: state =>
       state.field.flat().filter(cell => cell.aroundMines === 0).length,
+    aroundMineCell: (state, getters) => {
+      const field = state.field;
+      let count = 0;
+      for (let i = 0; i < getters.row; i++) {
+        for (let j = 0; j < getters.col; j++) {
+          if (!field[i][j].isLandMine && field[i][j].aroundMines) {
+            let check = false;
+            for (let k = i - 1; k <= i + 1; k++) {
+              if (k < 0 || k >= getters.row) {
+                continue;
+              }
+              for (let l = j - 1; l <= j + 1; l++) {
+                if (l < 0 || l >= getters.col) {
+                  continue;
+                }
+                if (field[k][l].aroundMines === 0) {
+                  check = true;
+                }
+              }
+            }
+            if (!check) {
+              count++;
+            }
+          }
+        }
+      }
+      return count;
+    },
     isGameClear: (_, getters) => getters.mine === getters.remainNotOpen,
     isStart: (_, getters) =>
       getters.row * getters.col !== getters.remainNotOpen,
+    openMapLength: (_, getters) =>
+      getters.openMap
+        .map((x: any) => x.group)
+        .filter((x: any, i: number, self: any) => {
+          return self.indexOf(x) === i;
+        }).length,
+    BBBV: (_, getters) => getters.openMapLength + getters.aroundMineCell,
+    BBBVs: (_, getters) =>
+      getters.time === 0 ? 0 : getters.BBBV / getters.time,
   },
   mutations: {
     setField(state, field): void {
@@ -67,6 +105,9 @@ export default new Vuex.Store({
     },
     setConfig(state, config): void {
       Object.assign(state.config, config);
+    },
+    setHistorys(state, history): void {
+      state.historys = history;
     },
   },
   actions: {
@@ -161,27 +202,29 @@ export default new Vuex.Store({
       }
       for (let i = 0; i < openMap.length; i++) {
         const target = Object.assign({}, openMap[i]);
-        const isAdjacentRow = openMap.findIndex(
-          val => val.row === target.row + 1 && val.col === target.col
-        );
-        if (isAdjacentRow >= 0) {
-          const updateTarget = Object.assign({}, openMap[isAdjacentRow]);
-          openMap.map(val => {
-            val.group =
-              val.group === updateTarget.group ? target.group : val.group;
-            return val;
-          });
-        }
-        const isAdjacentCol = openMap.findIndex(
-          val => val.row === target.row && val.col === target.col + 1
-        );
-        if (isAdjacentCol >= 0) {
-          const updateTarget = Object.assign({}, openMap[isAdjacentCol]);
-          openMap.map(val => {
-            val.group =
-              val.group === updateTarget.group ? target.group : val.group;
-            return val;
-          });
+        for (let j = -1; j <= 1; j++) {
+          const isAdjacentRow = openMap.findIndex(
+            val => val.row === target.row + 1 && val.col === target.col + j
+          );
+          if (isAdjacentRow >= 0) {
+            const updateTarget = Object.assign({}, openMap[isAdjacentRow]);
+            openMap.map(val => {
+              val.group =
+                val.group === updateTarget.group ? target.group : val.group;
+              return val;
+            });
+          }
+          const isAdjacentCol = openMap.findIndex(
+            val => val.row === target.row + j && val.col === target.col + 1
+          );
+          if (isAdjacentCol >= 0) {
+            const updateTarget = Object.assign({}, openMap[isAdjacentCol]);
+            openMap.map(val => {
+              val.group =
+                val.group === updateTarget.group ? target.group : val.group;
+              return val;
+            });
+          }
         }
       }
       ctx.commit("setField", field);
@@ -228,19 +271,12 @@ export default new Vuex.Store({
             if (field[k][l].isOpen || field[k][l].isFlag) {
               continue;
             }
-            const checkContainOpenMap = openCells.findIndex(
-              (val: any) => val.row === k && val.col === l
-            );
-            if (checkContainOpenMap < 0 && field[k][l].aroundMines === 0) {
-              ctx.dispatch("openCellFromOpenMap", {row: k, col: l});
-            } else {
-              field[k][l] = {
-                isOpen: true,
-                isFlag: field[k][l].isFlag,
-                isLandMine: field[k][l].isLandMine,
-                aroundMines: field[k][l].aroundMines,
-              };
-            }
+            field[k][l] = {
+              isOpen: true,
+              isFlag: field[k][l].isFlag,
+              isLandMine: field[k][l].isLandMine,
+              aroundMines: field[k][l].aroundMines,
+            };
           }
         }
       }
@@ -288,8 +324,28 @@ export default new Vuex.Store({
       ctx.commit("setTime", 0);
     },
     setConfig(ctx, config: Config): void {
+      vuetify.framework.theme.dark = config.darkTheme;
       ctx.commit("setConfig", config);
       ctx.dispatch("initClearField");
+    },
+    registerHistory(ctx): void {
+      let historys = ctx.getters.historys.concat();
+      const history = {
+        time: ctx.getters.time,
+        date: new Date().toLocaleString("ja", {
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        BBBV: ctx.getters.BBBV,
+        BBBVs: ctx.getters.BBBVs,
+      };
+      historys.push(history);
+      ctx.commit(
+        "setHistorys",
+        historys.sort((a: any, b: any) => b.BBBVs - a.BBBVs).slice(0, 5)
+      );
     },
   },
   modules: {},

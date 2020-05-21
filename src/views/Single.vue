@@ -6,19 +6,58 @@
         閉じる
       </v-btn>
     </v-snackbar>
-    <div v-for="(items, itemsIdx) in $store.getters.field" :key="itemsIdx">
-      <span v-for="(item, itemIdx) in items" :key="itemsIdx + '_' + itemIdx">
+    <div v-for="(items, i) in $store.getters.field" :key="i">
+      <span v-for="(item, j) in items" :key="i + '-' + j">
+        <transition :name="setTransitionName()">
+          <v-btn
+            v-if="!item.isOpen"
+            :id="'r' + i + '-' + j"
+            :class="setFieldClassWrap(item, i + j)"
+            absolute
+            icon
+            small
+            tile
+            @click.left.stop="openCell(i, j)"
+            @click.right.stop.prevent="toggleFlag(i, j)"
+          >
+            <v-icon>{{ setFieldIconWrap(item) }}</v-icon>
+          </v-btn>
+        </transition>
         <v-btn
+          :id="'c' + i + '-' + j"
+          :class="setFieldClass(item, i + j)"
           icon
-          tile
-          outlined
           small
-          @click.left.stop="openCell(itemsIdx, itemIdx)"
-          @click.right.stop.prevent="toggleFlag(itemsIdx, itemIdx)"
+          tile
+          @click.right.stop.prevent
         >
           <v-icon>{{ setFieldIcon(item) }}</v-icon>
         </v-btn>
       </span>
+    </div>
+    <div class="score">
+      <v-fab-transition origin="top right">
+        <v-alert v-if="scoreAlert" dismissible>
+          <template #close>
+            <v-btn icon class="mx-1" @click.stop="toggleScoreAlert">
+              <v-icon>mdi-crown</v-icon>
+            </v-btn>
+          </template>
+          <span class="title">BEST 5 (3BV/s)</span>
+          <br />
+          <span v-for="(item, idx) in $store.getters.historys" :key="idx">
+            <div class="my-1 body-1">
+              {{ idx + 1 }}位
+              {{ display3BVs(item.BBBVs) }}
+              ({{ displayDate(item.date) }})
+            </div>
+            <hr />
+          </span>
+        </v-alert>
+        <v-btn v-else icon @click.stop="toggleScoreAlert">
+          <v-icon>mdi-crown</v-icon>
+        </v-btn>
+      </v-fab-transition>
     </div>
   </div>
 </template>
@@ -33,6 +72,7 @@ export default class Single extends Vue {
     text: "",
   };
   private timerId = 0;
+  private scoreAlert = false;
 
   // クリア判定
   @Watch("$store.getters.isGameClear")
@@ -40,7 +80,8 @@ export default class Single extends Vue {
     if (this.$store.getters.isGameClear) {
       this.$store.dispatch("stopTimer");
       this.$store.dispatch("openCellAll");
-      this.showSnackbar("おめでとうございます。クリアしました。");
+      this.$store.dispatch("registerHistory");
+      this.showSnackbar("clear");
     }
   }
 
@@ -59,18 +100,36 @@ export default class Single extends Vue {
       if (item.aroundMines) {
         return "mdi-numeric-" + item.aroundMines.toString();
       }
-      return "mdi-crop-free";
+      return;
     }
+    return;
+  }
+  setFieldIconWrap(item: any) {
     if (item.isFlag) {
       return "mdi-flag-triangle";
     }
-    return;
+  }
+  setFieldClass(item: any, totalIdx: number) {
+    let open = item.isOpen ? "--open" : "";
+    let even = totalIdx % 2 ? "--odd" : "";
+    let theme = this.$store.getters.config.darkTheme ? "--dark" : "";
+
+    return "cell" + open + even + theme;
+  }
+  setFieldClassWrap(item: any, totalIdx: number) {
+    let even = totalIdx % 2 ? "--odd" : "";
+    let theme = this.$store.getters.config.darkTheme ? "--dark" : "";
+    return "cell" + even + theme + " wrapCell";
+  }
+  setTransitionName() {
+    return Math.random() < 0.5 ? "open-cell-r" : "open-cell-l";
   }
   openCell(row: number, col: number) {
     const cell = this.$store.getters.field[row][col];
     if (cell.isFlag || cell.isOpen) {
       return;
     }
+    // 初クリック判定
     if (!this.$store.getters.isStart) {
       this.$store.dispatch("initFieldFromClick", {row, col});
       this.$store.dispatch("startTimer");
@@ -80,7 +139,7 @@ export default class Single extends Vue {
     if (cell.isLandMine) {
       this.$store.dispatch("stopTimer");
       this.$store.dispatch("openCellAll");
-      this.showSnackbar("あなたは戦死しました。");
+      this.showSnackbar("gameOver");
       return;
     }
     this.$store.dispatch("openCell", {row, col});
@@ -93,9 +152,26 @@ export default class Single extends Vue {
     }
     this.$store.dispatch("toggleFlag", {row, col});
   }
-  showSnackbar(text: string) {
-    this.snackbar.text = text;
+  showSnackbar(type: string) {
+    if (type === "clear") {
+      this.snackbar.text =
+        "おめでとうございます。クリアしました！" +
+        "スコア：" +
+        this.display3BVs(this.$store.getters.BBBVs);
+    } else {
+      this.snackbar.text = "あなたは戦死しました。";
+    }
+
     this.snackbar.isOpen = true;
+  }
+  toggleScoreAlert() {
+    this.scoreAlert = !this.scoreAlert;
+  }
+  displayDate(date: string) {
+    return date;
+  }
+  display3BVs(BBBVs: number) {
+    return Math.round(BBBVs * 1000) / 1000;
   }
   created() {
     this.$store.dispatch("initClearField");
@@ -103,4 +179,87 @@ export default class Single extends Vue {
 }
 </script>
 
-<style scoped></style>
+<style scoped lang="scss">
+.score {
+  position: absolute;
+  top: 12px;
+  right: 10px;
+}
+
+.cell {
+  &--open {
+    &--odd {
+      &--dark {
+        background-color: var(--v-accent-darken2);
+      }
+      background-color: var(--v-accent-lighten2);
+    }
+    &--dark {
+      background-color: var(--v-accent-darken3);
+    }
+    background-color: var(--v-accent-lighten3);
+  }
+  &--odd {
+    &--dark {
+      background-color: var(--v-primary-darken1);
+    }
+    background-color: var(--v-primary-lighten1);
+  }
+  &--dark {
+    background-color: var(--v-primary-darken2);
+  }
+  background-color: var(--v-primary-lighten2);
+}
+
+.wrapCell {
+  z-index: 1;
+}
+
+// base keyframes
+@mixin keyframes($animation-name) {
+  @keyframes #{$animation-name} {
+    @content;
+  }
+}
+
+@mixin animation($animation-name) {
+  animation: $animation-name;
+}
+
+// my animation
+@function getPoint($t, $x1, $x2, $sign) {
+  $x: $t * $t * $x2 + 2 * $t * (1 - $t) * $x1;
+  @return $sign * $x + unquote("%");
+}
+
+@mixin break-transform($base, $signX) {
+  @for $i from 0 through 100 {
+    #{$i}% {
+      transform: translate(
+          getPoint($i * 0.01, $base * 0.2, $base, $signX),
+          getPoint($i * 0.01, $base * 0.8, $base, -1)
+        )
+        rotate(($i * 7.2) + unquote("deg"))
+        scale(1 - ($i * 0.01));
+    }
+  }
+}
+
+@include keyframes(break-cell-r) {
+  @include break-transform(150, 1);
+}
+
+@include keyframes(break-cell-l) {
+  @include break-transform(150, -1);
+}
+
+.open-cell-r-leave-active {
+  background-color: var(--v-accent-base);
+  @include animation(break-cell-r 0.5s);
+}
+
+.open-cell-l-leave-active {
+  background-color: var(--v-accent-base);
+  @include animation(break-cell-l 0.5s);
+}
+</style>

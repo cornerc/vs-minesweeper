@@ -75,13 +75,13 @@
       <v-container fluid>
         <router-view />
       </v-container>
+      <infoDialog :dialog="infoDialog" @toggleDialog="toggleInfoDialog" />
+      <configDialog
+        :dialog="configDialog"
+        :config="$store.getters.config"
+        @toggleDialog="toggleConfigDialog"
+      />
     </v-content>
-    <configDialog
-      :dialog="configDialog"
-      :config="$store.getters.config"
-      @toggleDialog="toggleConfigDialog"
-    />
-    <infoDialog :dialog="infoDialog" @toggleDialog="toggleInfoDialog" />
   </div>
 </template>
 
@@ -178,6 +178,9 @@ export default class Base extends Vue {
   }
   refreshField() {
     this.$store.dispatch("initClearField");
+  }
+  created() {
+    this.$store.dispatch("setConfig", this.$store.getters.config);
   }
 }
 </script>

@@ -3,10 +3,13 @@ import App from "./App.vue";
 import "./registerServiceWorker";
 import router from "./router";
 import store from "./store";
-import vuetify from "./plugins/vuetify";
+import vuetify from "./plugins/vuetify/vuetify";
 import firebase from "firebase/app";
+import {sync} from "vuex-router-sync";
 
 Vue.config.productionTip = false;
+
+sync(store, router);
 
 const firebaseConfig = {
   apiKey: process.env.VUE_APP_FIREBASE_API_KEY,

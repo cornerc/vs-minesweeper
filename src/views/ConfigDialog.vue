@@ -1,6 +1,7 @@
 <template>
   <v-dialog
     :value="dialog"
+    :transition="transition"
     max-width="50%"
     @click:outside.stop="toggleDialog"
     @keydown.esc.stop="toggleDialog"
@@ -18,10 +19,11 @@
                 <div>テーマ</div>
               </v-col>
               <v-col cols="12" sm="6">
-                <v-checkbox v-model="theme" label="Light" value="light" dense />
-              </v-col>
-              <v-col cols="12" sm="6">
-                <v-checkbox v-model="theme" label="Dark" value="dark" dense />
+                <v-checkbox
+                  v-model="innerConfig.darkTheme"
+                  label="Dark"
+                  dense
+                />
               </v-col>
             </v-row>
             <v-row>
@@ -68,7 +70,7 @@
             </v-row>
             <v-row>
               <v-col>
-                <span class="note">
+                <span class="red--text">
                   設定を保存するとプレイ中のフィールドは初期化されます
                 </span>
               </v-col>
@@ -100,9 +102,10 @@ export default class ConfigDialog extends Vue {
   dialog: boolean;
   @Prop({type: Object, default: {}})
   config: Config;
+  @Prop({type: [String, Boolean], default: "dialog-transition"})
+  transition: string | boolean;
 
   private innerConfig: Config = Object.assign({}, this.config);
-  private theme = this.$vuetify.theme.dark ? "dark" : "light";
   private valid = true;
   private rowRules = [
     (v: number) => Number.isInteger(v) || "整数を入力してください",
@@ -141,8 +144,6 @@ export default class ConfigDialog extends Vue {
   }
 
   saveConfig() {
-    //TODO: themeもstoreかlocalstorageで管理
-    this.$vuetify.theme.dark = this.theme === "dark";
     this.$store.dispatch("setConfig", this.innerConfig);
     this.toggleDialog();
   }
@@ -154,9 +155,3 @@ export default class ConfigDialog extends Vue {
   }
 }
 </script>
-
-<style scoped>
-.note {
-  color: red;
-}
-</style>
