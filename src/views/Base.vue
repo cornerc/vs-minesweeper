@@ -75,12 +75,12 @@
       <v-container fluid>
         <router-view />
       </v-container>
+      <infoDialog :dialog="infoDialog" @toggleDialog="toggleInfoDialog" />
       <configDialog
         :dialog="configDialog"
         :config="$store.getters.config"
         @toggleDialog="toggleConfigDialog"
       />
-      <infoDialog :dialog="infoDialog" @toggleDialog="toggleInfoDialog" />
     </v-content>
   </div>
 </template>

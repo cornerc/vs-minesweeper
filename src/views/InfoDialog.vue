@@ -1,6 +1,7 @@
 <template>
   <v-dialog
     :value="dialog"
+    :transition="transition"
     max-width="70%"
     @click:outside.stop="toggleDialog"
     @keydown.esc.stop="toggleDialog"
@@ -36,8 +37,7 @@
             <var>3BV/s</var> =
             <var>クリアに必要な最小クリック数／クリアタイム(秒)</var>
           </div>
-          盤面の大きさが異なってもスコアの比較ができる指標になっています。
-          (ただし盤面が大きいほど高いスコアになりやすい傾向があります)<br />
+          盤面の大きさが異なってもスコアの比較ができる指標になっています。<br />
           スコアは、最後にプレイしてから約7日間保存されます。
         </v-container>
       </v-card-text>
@@ -58,6 +58,8 @@ import {Component, Emit, Prop, Vue} from "vue-property-decorator";
 export default class InfoDialog extends Vue {
   @Prop({type: Boolean, default: false})
   dialog: boolean;
+  @Prop({type: [String, Boolean], default: "dialog-transition"})
+  transition: string | boolean;
 
   @Emit("toggleDialog")
   toggleDialog() {

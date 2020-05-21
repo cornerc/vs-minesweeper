@@ -8,39 +8,56 @@
     </v-snackbar>
     <div v-for="(items, i) in $store.getters.field" :key="i">
       <span v-for="(item, j) in items" :key="i + '-' + j">
+        <transition :name="setTransitionName()">
+          <v-btn
+            v-if="!item.isOpen"
+            :id="'r' + i + '-' + j"
+            :class="setFieldClassWrap(item, i + j)"
+            absolute
+            icon
+            small
+            tile
+            @click.left.stop="openCell(i, j)"
+            @click.right.stop.prevent="toggleFlag(i, j)"
+          >
+            <v-icon>{{ setFieldIconWrap(item) }}</v-icon>
+          </v-btn>
+        </transition>
         <v-btn
-          icon
-          tile
-          small
+          :id="'c' + i + '-' + j"
           :class="setFieldClass(item, i + j)"
-          @click.left.stop="openCell(i, j)"
-          @click.right.stop.prevent="toggleFlag(i, j)"
+          icon
+          small
+          tile
+          @click.right.stop.prevent
         >
           <v-icon>{{ setFieldIcon(item) }}</v-icon>
         </v-btn>
       </span>
     </div>
     <div class="score">
-      <v-alert v-if="scoreAlert" dismissible>
-        <template #close>
-          <v-btn icon class="mx-1" @click.stop="toggleScoreAlert">
-            <v-icon>mdi-crown</v-icon>
-          </v-btn>
-        </template>
-        <span class="title">マイスコア</span>
-        <br />
-        <span v-for="(item, idx) in $store.getters.scoreRanking" :key="idx">
-          <div class="my-1 body-1">
-            {{ idx + 1 }}位｜3BV/s：
-            {{ display3BVs(item.BBBVs) }}
-            ({{ displayDate(item.date) }})
-          </div>
-          <hr />
-        </span>
-      </v-alert>
-      <v-btn v-else icon @click.stop="toggleScoreAlert">
-        <v-icon>mdi-crown</v-icon>
-      </v-btn>
+      <v-fab-transition origin="top right">
+        <v-alert v-if="scoreAlert" dismissible>
+          <template #close>
+            <v-btn icon class="mx-1" @click.stop="toggleScoreAlert">
+              <v-icon>mdi-crown</v-icon>
+            </v-btn>
+          </template>
+          <span class="title">BEST 5 (3BV/s)</span>
+          <br />
+          <span v-for="(item, idx) in $store.getters.historys" :key="idx">
+            <div class="my-1 body-1">
+              {{ idx + 1 }}位
+              {{ display3BVs(item.BBBVs) }}
+              ({{ displayDate(item.date) }})
+            </div>
+            <hr />
+          </span>
+        </v-alert>
+        <v-btn v-else icon @click.stop="toggleScoreAlert">
+          <v-icon>mdi-crown</v-icon>
+        </v-btn>
+      </v-fab-transition>
     </div>
   </div>
 </template>
@@ -85,26 +102,27 @@ export default class Single extends Vue {
       }
       return;
     }
+    return;
+  }
+  setFieldIconWrap(item: any) {
     if (item.isFlag) {
       return "mdi-flag-triangle";
     }
-    return;
   }
   setFieldClass(item: any, totalIdx: number) {
-    let open = "";
-    let even = "";
-    let theme = "";
+    let open = item.isOpen ? "--open" : "";
+    let even = totalIdx % 2 ? "--odd" : "";
+    let theme = this.$store.getters.config.darkTheme ? "--dark" : "";
 
-    if (item.isOpen) {
-      open = "--open";
-    }
-    if (totalIdx % 2) {
-      even = "--odd";
-    }
-    if (this.$store.getters.config.darkTheme) {
-      theme = "--dark";
-    }
     return "cell" + open + even + theme;
+  }
+  setFieldClassWrap(item: any, totalIdx: number) {
+    let even = totalIdx % 2 ? "--odd" : "";
+    let theme = this.$store.getters.config.darkTheme ? "--dark" : "";
+    return "cell" + even + theme + " wrapCell";
+  }
+  setTransitionName() {
+    return Math.random() < 0.5 ? "open-cell-r" : "open-cell-l";
   }
   openCell(row: number, col: number) {
     const cell = this.$store.getters.field[row][col];
@@ -150,7 +168,7 @@ export default class Single extends Vue {
     this.scoreAlert = !this.scoreAlert;
   }
   displayDate(date: string) {
-    return date.slice(5, 14);
+    return date;
   }
   display3BVs(BBBVs: number) {
     return Math.round(BBBVs * 1000) / 1000;
@@ -165,7 +183,7 @@ export default class Single extends Vue {
 .score {
   position: absolute;
   top: 12px;
-  right: 16px;
+  right: 10px;
 }
 
 .cell {
@@ -191,5 +209,57 @@ export default class Single extends Vue {
     background-color: var(--v-primary-darken2);
   }
   background-color: var(--v-primary-lighten2);
+}
+
+.wrapCell {
+  z-index: 1;
+}
+
+// base keyframes
+@mixin keyframes($animation-name) {
+  @keyframes #{$animation-name} {
+    @content;
+  }
+}
+
+@mixin animation($animation-name) {
+  animation: $animation-name;
+}
+
+// my animation
+@function getPoint($t, $x1, $x2, $sign) {
+  $x: $t * $t * $x2 + 2 * $t * (1 - $t) * $x1;
+  @return $sign * $x + unquote("%");
+}
+
+@mixin break-transform($base, $signX) {
+  @for $i from 0 through 100 {
+    #{$i}% {
+      transform: translate(
+          getPoint($i * 0.01, $base * 0.2, $base, $signX),
+          getPoint($i * 0.01, $base * 0.8, $base, -1)
+        )
+        rotate(($i * 7.2) + unquote("deg"))
+        scale(1 - ($i * 0.01));
+    }
+  }
+}
+
+@include keyframes(break-cell-r) {
+  @include break-transform(150, 1);
+}
+
+@include keyframes(break-cell-l) {
+  @include break-transform(150, -1);
+}
+
+.open-cell-r-leave-active {
+  background-color: var(--v-accent-base);
+  @include animation(break-cell-r 0.5s);
+}
+
+.open-cell-l-leave-active {
+  background-color: var(--v-accent-base);
+  @include animation(break-cell-l 0.5s);
 }
 </style>
