@@ -8,13 +8,28 @@
     </v-snackbar>
     <div v-for="(items, i) in $store.getters.field" :key="i">
       <span v-for="(item, j) in items" :key="i + '-' + j">
+        <transition :name="setTransitionName()">
+          <v-btn
+            v-if="!item.isOpen"
+            :id="'r' + i + '-' + j"
+            :class="setFieldClassWrap(item, i + j)"
+            absolute
+            icon
+            small
+            tile
+            @click.left.stop="openCell(i, j)"
+            @click.right.stop.prevent="toggleFlag(i, j)"
+          >
+            <v-icon>{{ setFieldIconWrap(item) }}</v-icon>
+          </v-btn>
+        </transition>
         <v-btn
-          icon
-          tile
-          small
+          :id="'c' + i + '-' + j"
           :class="setFieldClass(item, i + j)"
-          @click.left.stop="openCell(i, j)"
-          @click.right.stop.prevent="toggleFlag(i, j)"
+          icon
+          small
+          tile
+          @click.right.stop.prevent
         >
           <v-icon>{{ setFieldIcon(item) }}</v-icon>
         </v-btn>
@@ -87,26 +102,27 @@ export default class Single extends Vue {
       }
       return;
     }
+    return;
+  }
+  setFieldIconWrap(item: any) {
     if (item.isFlag) {
       return "mdi-flag-triangle";
     }
-    return;
   }
   setFieldClass(item: any, totalIdx: number) {
-    let open = "";
-    let even = "";
-    let theme = "";
+    let open = item.isOpen ? "--open" : "";
+    let even = totalIdx % 2 ? "--odd" : "";
+    let theme = this.$store.getters.config.darkTheme ? "--dark" : "";
 
-    if (item.isOpen) {
-      open = "--open";
-    }
-    if (totalIdx % 2) {
-      even = "--odd";
-    }
-    if (this.$store.getters.config.darkTheme) {
-      theme = "--dark";
-    }
     return "cell" + open + even + theme;
+  }
+  setFieldClassWrap(item: any, totalIdx: number) {
+    let even = totalIdx % 2 ? "--odd" : "";
+    let theme = this.$store.getters.config.darkTheme ? "--dark" : "";
+    return "cell" + even + theme + " wrapCell";
+  }
+  setTransitionName() {
+    return Math.random() < 0.5 ? "open-cell-r" : "open-cell-l";
   }
   openCell(row: number, col: number) {
     const cell = this.$store.getters.field[row][col];
@@ -193,5 +209,45 @@ export default class Single extends Vue {
     background-color: var(--v-primary-darken2);
   }
   background-color: var(--v-primary-lighten2);
+}
+
+.wrapCell {
+  z-index: 1;
+}
+
+.open-cell-r-leave-active {
+  background-color: var(--v-accent-base);
+  animation: break-cell-r 0.5s;
+}
+
+.open-cell-l-leave-active {
+  background-color: var(--v-accent-base);
+  animation: break-cell-l 0.5s;
+}
+
+@function getPoint($t, $x1, $x2, $sign) {
+  $x: $t * $t * $x2 + 2 * $t * (1 - $t) * $x1;
+  @return $sign * $x + unquote("%");
+}
+
+@mixin set-transform($ctrlX, $ctrlY, $end, $signX) {
+  @for $i from 0 through 100 {
+    #{$i}% {
+      transform: translateX(getPoint($i * 0.01, $ctrlX, $end, $signX))
+        translateY(getPoint($i * 0.01, $ctrlY, $end, -1))
+        rotate(($i * 7.2) + unquote("deg"))
+        scale(1 - ($i * 0.01));
+    }
+  }
+}
+
+@keyframes break-cell-r {
+  $base: 150;
+  @include set-transform($base * 0.2, $base * 0.8, $base, 1);
+}
+
+@keyframes break-cell-l {
+  $base: 150;
+  @include set-transform($base * 0.2, $base * 0.8, $base, -1);
 }
 </style>
