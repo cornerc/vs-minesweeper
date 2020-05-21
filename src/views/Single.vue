@@ -215,39 +215,51 @@ export default class Single extends Vue {
   z-index: 1;
 }
 
-.open-cell-r-leave-active {
-  background-color: var(--v-accent-base);
-  animation: break-cell-r 0.5s;
+// base keyframes
+@mixin keyframes($animation-name) {
+  @keyframes #{$animation-name} {
+    @content;
+  }
 }
 
-.open-cell-l-leave-active {
-  background-color: var(--v-accent-base);
-  animation: break-cell-l 0.5s;
+@mixin animation($animation-name) {
+  animation: $animation-name;
 }
 
+// my animation
 @function getPoint($t, $x1, $x2, $sign) {
   $x: $t * $t * $x2 + 2 * $t * (1 - $t) * $x1;
   @return $sign * $x + unquote("%");
 }
 
-@mixin set-transform($ctrlX, $ctrlY, $end, $signX) {
+@mixin break-transform($base, $signX) {
   @for $i from 0 through 100 {
     #{$i}% {
-      transform: translateX(getPoint($i * 0.01, $ctrlX, $end, $signX))
-        translateY(getPoint($i * 0.01, $ctrlY, $end, -1))
+      transform: translate(
+          getPoint($i * 0.01, $base * 0.2, $base, $signX),
+          getPoint($i * 0.01, $base * 0.8, $base, -1)
+        )
         rotate(($i * 7.2) + unquote("deg"))
         scale(1 - ($i * 0.01));
     }
   }
 }
 
-@keyframes break-cell-r {
-  $base: 150;
-  @include set-transform($base * 0.2, $base * 0.8, $base, 1);
+@include keyframes(break-cell-r) {
+  @include break-transform(150, 1);
 }
 
-@keyframes break-cell-l {
-  $base: 150;
-  @include set-transform($base * 0.2, $base * 0.8, $base, -1);
+@include keyframes(break-cell-l) {
+  @include break-transform(150, -1);
+}
+
+.open-cell-r-leave-active {
+  background-color: var(--v-accent-base);
+  @include animation(break-cell-r 0.5s);
+}
+
+.open-cell-l-leave-active {
+  background-color: var(--v-accent-base);
+  @include animation(break-cell-l 0.5s);
 }
 </style>
