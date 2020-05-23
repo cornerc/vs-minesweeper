@@ -88,8 +88,8 @@
 <script lang="ts">
 import {Component, Vue, Watch} from "vue-property-decorator";
 import router from "@/router/index";
-import ConfigDialog from "@/views/ConfigDialog.vue";
-import InfoDialog from "@/views/InfoDialog.vue";
+import ConfigDialog from "@/components/molecules/ConfigDialog.vue";
+import InfoDialog from "@/components/molecules/InfoDialog.vue";
 
 @Component({
   components: {

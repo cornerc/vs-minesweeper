@@ -1,9 +1,9 @@
 import Vue from "vue";
 import VueRouter, {RouteConfig} from "vue-router";
-import Base from "../views/Base.vue";
-import Single from "../views/Single.vue";
-import ComingSoon from "../views/ComingSoon.vue";
-import Top from "../views/Top.vue";
+import Base from "@/components/templates/Base.vue";
+import Single from "@/components/organisms/Single.vue";
+import ComingSoon from "@/components/organisms/ComingSoon.vue";
+import Top from "@/components/organisms/Top.vue";
 
 Vue.use(VueRouter);
 
