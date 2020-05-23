@@ -1,7 +1,7 @@
 import Vue from "vue";
 import VueRouter, {RouteConfig} from "vue-router";
 import Base from "@/components/connect/Base";
-import Single from "@/components/organisms/Single.vue";
+import Single from "@/components/connect/Single";
 import ComingSoon from "@/components/organisms/ComingSoon.vue";
 import Top from "@/components/organisms/Top.vue";
 

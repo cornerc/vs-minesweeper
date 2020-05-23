@@ -1,12 +1,12 @@
 <template>
   <div class="single">
-    <v-snackbar v-model="snackbar.isOpen" :timeout="5000" multi-line top>
-      {{ snackbar.text }}
-      <v-btn color="red" text @click="snackbar.isOpen = !snackbar.isOpen">
+    <v-snackbar v-model="toggles.snackbar" :timeout="5000" multi-line top>
+      {{ snackbarText }}
+      <v-btn color="red" text @click="toggleItem('snackbar')">
         閉じる
       </v-btn>
     </v-snackbar>
-    <div v-for="(items, i) in $store.getters.field" :key="i">
+    <div v-for="(items, i) in field" :key="i">
       <span v-for="(item, j) in items" :key="i + '-' + j">
         <transition
           duration="300"
@@ -20,8 +20,8 @@
             icon
             small
             tile
-            @click.left.stop="openCell(i, j)"
-            @click.right.stop.prevent="toggleFlag(i, j)"
+            @click.left.stop="open(i, j)"
+            @click.right.stop.prevent="isStart ? toggleFlag(i, j) : {}"
           >
             <v-icon>{{ setFieldIconWrap(item) }}</v-icon>
           </v-btn>
@@ -40,15 +40,15 @@
     </div>
     <div class="score">
       <v-fab-transition origin="top right">
-        <v-alert v-if="scoreAlert" dismissible>
+        <v-alert v-if="toggles.scoreAlert" dismissible>
           <template #close>
-            <v-btn icon class="mx-1" @click.stop="toggleScoreAlert">
+            <v-btn icon class="mx-1" @click.stop="toggleItem('scoreAlert')">
               <v-icon>mdi-crown</v-icon>
             </v-btn>
           </template>
           <span class="title">BEST 5 (3BV/s)</span>
           <br />
-          <span v-for="(item, idx) in $store.getters.historys" :key="idx">
+          <span v-for="(item, idx) in historys" :key="idx">
             <div class="my-1 body-1">
               {{ idx + 1 }}位
               {{ display3BVs(item.BBBVs) }}
@@ -57,7 +57,7 @@
             <hr />
           </span>
         </v-alert>
-        <v-btn v-else icon @click.stop="toggleScoreAlert">
+        <v-btn v-else icon @click.stop="toggleItem('scoreAlert')">
           <v-icon>mdi-crown</v-icon>
         </v-btn>
       </v-fab-transition>
@@ -66,27 +66,51 @@
 </template>
 
 <script lang="ts">
-import {Component, Vue, Prop, Watch} from "vue-property-decorator";
-import {getSign} from "@/utils/index";
+import {Component, Emit, Vue, Prop, Watch} from "vue-property-decorator";
 import gsap from "gsap";
+import {getSign} from "@/utils/index";
+import {Config, SingleToggles} from "@/components/type";
 
 @Component
 export default class Single extends Vue {
-  private snackbar = {
-    isOpen: false,
-    text: "",
-  };
-  private timerId = 0;
-  private scoreAlert = false;
-  private cellAnimation = false;
+  @Prop({type: Array, default: () => {}})
+  private field: any[];
+  @Prop({type: Object, default: () => {}})
+  private config: Config;
+  @Prop({type: Boolean, default: false})
+  private isStart: boolean;
+  @Prop({type: Boolean, default: false})
+  private isGameClear: boolean;
+  @Prop({type: Array, default: () => {}})
+  private historys: any[];
+  @Prop({type: Number, default: 0})
+  private BBBVs: number;
 
-  @Watch("$store.getters.isStart")
+  private snackbarText = "";
+  private cellAnimation = false;
+  private toggles = {
+    scoreAlert: false,
+    snackbar: false,
+  };
+
+  @Watch("isStart")
   setInit() {
-    if (!this.$store.getters.isStart) {
-      this.$store.dispatch("stopTimer");
+    if (!this.isStart) {
+      this.stopTimer();
+    }
+  }
+  @Watch("isGameClear")
+  judgeGameClear() {
+    if (this.isGameClear) {
+      this.cellAnimation = false;
+      this.gameClear();
+      this.showSnackbar("clear");
     }
   }
 
+  toggleItem(item: SingleToggles) {
+    this.toggles[item] = !this.toggles[item];
+  }
   setFieldIcon(item: any) {
     if (item.isOpen) {
       if (item.isLandMine) {
@@ -95,7 +119,6 @@ export default class Single extends Vue {
       if (item.aroundMines) {
         return "mdi-numeric-" + item.aroundMines.toString();
       }
-      return;
     }
     return;
   }
@@ -107,69 +130,47 @@ export default class Single extends Vue {
   setFieldClass(item: any, totalIdx: number) {
     let open = item.isOpen ? "--open" : "";
     let even = totalIdx % 2 ? "--odd" : "";
-    let theme = this.$store.getters.config.darkTheme ? "--dark" : "";
+    let theme = this.config.darkTheme ? "--dark" : "";
 
     return "cell" + open + even + theme;
   }
   setFieldClassWrap(item: any, totalIdx: number) {
     let even = totalIdx % 2 ? "--odd" : "";
-    let theme = this.$store.getters.config.darkTheme ? "--dark" : "";
+    let theme = this.config.darkTheme ? "--dark" : "";
     return "cell" + even + theme + " wrapCell";
   }
-  openCell(row: number, col: number) {
-    let cell = this.$store.getters.field[row][col];
+  open(row: number, col: number) {
+    let cell = this.field[row][col];
     if (cell.isFlag || cell.isOpen) {
       return;
     }
     // 初クリック判定
-    if (!this.$store.getters.isStart) {
-      this.$store.dispatch("initFieldFromClick", {row, col});
-      this.$store.dispatch("startTimer");
-      cell = this.$store.getters.field[row][col]; // フィールド情報を再取得
+    if (!this.isStart) {
+      this.firstClick(row, col);
+      cell = this.field[row][col]; // フィールド情報を再取得
     }
     // アニメーションの設定
     this.cellAnimation =
       cell.isLandMine || cell.aroundMines === 0 ? false : true;
     // ゲームオーバー判定
     if (cell.isLandMine) {
-      this.$store.dispatch("stopTimer");
-      this.$store.dispatch("openCellAll");
+      this.gameOver();
       this.showSnackbar("gameOver");
       return;
     }
     // セルのオープン
-    this.$store.dispatch("openCell", {row, col});
-    // クリア判定
-    if (this.$store.getters.isGameClear) {
-      this.cellAnimation = false;
-      this.$store.dispatch("stopTimer");
-      this.$store.dispatch("openCellAll");
-      this.$store.dispatch("registerHistory");
-      this.showSnackbar("clear");
-    }
-  }
-  toggleFlag(row: number, col: number) {
-    const cell = this.$store.getters.field[row][col];
-    // すでに開かれている時は旗を立てない
-    if (cell.isOpen) {
-      return;
-    }
-    this.$store.dispatch("toggleFlag", {row, col});
+    this.openCell(row, col);
   }
   showSnackbar(type: string) {
     if (type === "clear") {
-      this.snackbar.text =
+      this.snackbarText =
         "おめでとうございます。クリアしました！" +
         "スコア：" +
-        this.display3BVs(this.$store.getters.BBBVs);
+        this.display3BVs(this.BBBVs);
     } else {
-      this.snackbar.text = "あなたは戦死しました。";
+      this.snackbarText = "あなたは戦死しました。";
     }
-
-    this.snackbar.isOpen = true;
-  }
-  toggleScoreAlert() {
-    this.scoreAlert = !this.scoreAlert;
+    this.toggleItem("snackbar");
   }
   displayDate(date: string) {
     return date;
@@ -206,8 +207,29 @@ export default class Single extends Vue {
       },
     });
   }
-  created() {
-    this.$store.dispatch("initClearField");
+  @Emit("openCell")
+  openCell(row: number, col: number) {
+    return {row, col};
+  }
+  @Emit("toggleFlag")
+  toggleFlag(row: number, col: number) {
+    return {row, col};
+  }
+  @Emit("gameClear")
+  gameClear() {
+    return;
+  }
+  @Emit("gameOver")
+  gameOver() {
+    return;
+  }
+  @Emit("stopTimer")
+  stopTimer() {
+    return;
+  }
+  @Emit("firstClick")
+  firstClick(row: number, col: number) {
+    return {row, col};
   }
 }
 </script>
