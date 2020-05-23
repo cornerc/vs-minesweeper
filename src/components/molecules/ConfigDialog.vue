@@ -94,7 +94,7 @@
 
 <script lang="ts">
 import {Component, Emit, Prop, Vue, Watch} from "vue-property-decorator";
-import {Config} from "@/store/type";
+import {Config} from "@/components/type";
 
 @Component
 export default class ConfigDialog extends Vue {
@@ -143,14 +143,14 @@ export default class ConfigDialog extends Vue {
     return Math.round(this.cellAmount * (20 / 100));
   }
 
+  @Emit("saveConfig")
   saveConfig() {
-    this.$store.dispatch("setConfig", this.innerConfig);
     this.toggleDialog();
+    return this.innerConfig;
   }
 
   @Emit("toggleDialog")
   toggleDialog() {
-    this.innerConfig = Object.assign({}, this.config);
     return;
   }
 }

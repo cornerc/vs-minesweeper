@@ -11,14 +11,14 @@
           class="ma-2"
           title="table"
           label
-          @click.stop="toggleConfigDialog"
+          @click.stop="toggleItem('configDialog')"
         >
-          {{ $store.getters.row }} × {{ $store.getters.col }}
+          {{ config.row }} × {{ config.col }}
         </v-chip>
         <v-spacer />
         <v-icon>mdi-av-timer</v-icon>
         <v-chip class="ma-2" title="time" label>
-          {{ displayTime($store.getters.time) }}
+          {{ displayTime(time) }}
         </v-chip>
         <v-spacer />
         <v-icon>mdi-emoticon-cool-outline</v-icon>
@@ -26,9 +26,9 @@
           class="ma-2"
           title="mine"
           label
-          @click.stop="toggleConfigDialog"
+          @click.stop="toggleItem('configDialog')"
         >
-          {{ $store.getters.remainMine }} / {{ $store.getters.mine }}
+          {{ remainMine }} / {{ config.mine }}
         </v-chip>
         <v-spacer />
         <template v-for="item in headerRightItems">
@@ -43,19 +43,18 @@
         </template>
       </v-toolbar>
       <v-navigation-drawer
-        v-model="drawer"
         class="navigation-drawer"
-        :mini-variant="mini"
+        :mini-variant="!toggles.drawer"
         app
         permanent
       >
         <v-list>
-          <v-list-item @click.stop="toggleDrawer">
-            <v-icon v-show="drawer" title="open-sidebar">
-              mdi-chevron-triple-right
-            </v-icon>
-            <v-icon v-show="!drawer" title="close-sidebar">
+          <v-list-item @click.stop="toggleItem('drawer')">
+            <v-icon v-if="toggles.drawer" title="close-sidebar">
               mdi-chevron-triple-left
+            </v-icon>
+            <v-icon v-else title="open-sidebar">
+              mdi-chevron-triple-right
             </v-icon>
           </v-list-item>
           <template v-for="item in sideMenuItems">
@@ -75,21 +74,26 @@
       <v-container fluid>
         <router-view />
       </v-container>
-      <infoDialog :dialog="infoDialog" @toggleDialog="toggleInfoDialog" />
+      <infoDialog
+        :dialog="toggles.infoDialog"
+        @toggleDialog="toggleItem('infoDialog')"
+      />
       <configDialog
-        :dialog="configDialog"
-        :config="$store.getters.config"
-        @toggleDialog="toggleConfigDialog"
+        :dialog="toggles.configDialog"
+        :config="config"
+        @toggleDialog="toggleItem('configDialog')"
+        @saveConfig="saveConfig"
       />
     </v-content>
   </div>
 </template>
 
 <script lang="ts">
-import {Component, Vue, Watch} from "vue-property-decorator";
-import router from "@/router/index";
-import ConfigDialog from "@/views/ConfigDialog.vue";
-import InfoDialog from "@/views/InfoDialog.vue";
+import {Component, Prop, Vue, Watch, Emit} from "vue-property-decorator";
+import {Config} from "@/components/type";
+import ConfigDialog from "@/components/molecules/ConfigDialog.vue";
+import InfoDialog from "@/components/molecules/InfoDialog.vue";
+import {BaseToggles, SideMenuItems, HeaderRightItems} from "@/components/type";
 
 @Component({
   components: {
@@ -98,89 +102,64 @@ import InfoDialog from "@/views/InfoDialog.vue";
   },
 })
 export default class Base extends Vue {
-  headerRightItems = [
+  @Prop({type: Object, default: () => {}})
+  private config: Config;
+  @Prop({type: Number, default: 0})
+  private time: number;
+  @Prop({type: Number, default: 0})
+  private remainMine: number;
+  @Prop({
+    type: Array,
+    default: () => [
+      {
+        icon: "mdi-home",
+        title: "top",
+        text: "TOP",
+        click: () => {},
+      },
+    ],
+  })
+  private sideMenuItems: SideMenuItems[];
+
+  headerRightItems: HeaderRightItems[] = [
     {
       icon: "mdi-information",
       title: "information",
-      class: "",
-      click: this.toggleInfoDialog,
+      click: () => this.toggleItem("infoDialog"),
     },
     {
       icon: "mdi-refresh",
       title: "reload",
-      class: "",
       click: this.refreshField,
     },
     {
       icon: "mdi-cog",
       title: "setting",
-      class: "",
-      click: this.toggleConfigDialog,
+      click: () => this.toggleItem("configDialog"),
     },
   ];
-  sideMenuItems = [
-    {
-      icon: "mdi-home",
-      title: "top",
-      text: "TOP",
-      class: "",
-      click: () => router.push("/", () => {}),
-    },
-    {
-      icon: "mdi-account",
-      title: "single",
-      text: "Single",
-      class: "",
-      click: () => router.push("single", () => {}),
-    },
-    {
-      icon: "mdi-timer-outline",
-      title: "time attack",
-      text: "Time Attack",
-      class: "",
-      click: () => router.push("time-attack", () => {}),
-    },
-    {
-      icon: "mdi-account-convert",
-      title: "alternation",
-      text: "Turn",
-      class: "",
-      click: () => router.push("turn", () => {}),
-    },
-    {
-      icon: "mdi-timer",
-      title: "real time",
-      text: "Real Time Attack",
-      class: "",
-      click: () => router.push("real-time", () => {}),
-    },
-  ];
-  private timerId = 0;
-  private drawer = false;
-  private mini = true;
-  private configDialog = false;
-  private infoDialog = false;
+  private toggles = {
+    drawer: false,
+    configDialog: false,
+    infoDialog: false,
+  };
 
-  toggleDrawer() {
-    this.drawer = !this.drawer;
-    this.mini = !this.mini;
-  }
-  toggleConfigDialog() {
-    this.configDialog = !this.configDialog;
-  }
-  toggleInfoDialog() {
-    this.infoDialog = !this.infoDialog;
+  toggleItem(item: BaseToggles) {
+    this.toggles[item] = !this.toggles[item];
   }
   displayTime(time: number) {
     const minute = Math.floor(time / 60);
     const second = time % 60;
     return ("0" + minute).slice(-2) + ":" + ("0" + second).slice(-2);
   }
+
+  @Emit("initClearField")
   refreshField() {
-    this.$store.dispatch("initClearField");
+    return;
   }
-  created() {
-    this.$store.dispatch("setConfig", this.$store.getters.config);
+  @Emit("saveConfig")
+  saveConfig(config: Config) {
+    return;
   }
 }
 </script>
