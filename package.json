@@ -10,6 +10,7 @@
   "dependencies": {
     "core-js": "^3.6.4",
     "firebase": "^7.14.2",
+    "gsap": "^3.2.6",
     "js-cookie": "^2.2.1",
     "register-service-worker": "^1.7.1",
     "vue": "^2.6.11",
@@ -22,6 +23,7 @@
     "vuex-router-sync": "^5.0.0"
   },
   "devDependencies": {
+    "@types/gsap": "^1.20.2",
     "@types/js-cookie": "^2.2.6",
     "@typescript-eslint/eslint-plugin": "^2.26.0",
     "@typescript-eslint/parser": "^2.26.0",

@@ -229,7 +229,6 @@ export default new Vuex.Store({
       }
       ctx.commit("setField", field);
       ctx.commit("setOpenMap", openMap);
-      ctx.dispatch("openCell", {row, col});
     },
     setField(ctx, field): void {
       ctx.commit("setField", field);

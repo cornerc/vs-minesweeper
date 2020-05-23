@@ -6,10 +6,14 @@ import store from "./store";
 import vuetify from "./plugins/vuetify/vuetify";
 import firebase from "firebase/app";
 import {sync} from "vuex-router-sync";
+import gsap from "gsap";
+import MotionPathPlugin from "gsap/dist/MotionPathPlugin";
 
 Vue.config.productionTip = false;
 
 sync(store, router);
+
+gsap.registerPlugin(MotionPathPlugin);
 
 const firebaseConfig = {
   apiKey: process.env.VUE_APP_FIREBASE_API_KEY,

@@ -8,10 +8,13 @@
     </v-snackbar>
     <div v-for="(items, i) in $store.getters.field" :key="i">
       <span v-for="(item, j) in items" :key="i + '-' + j">
-        <transition :name="setTransitionName()">
+        <transition
+          duration="300"
+          @leave="cellAnimation ? breakCellAnimation(i, j) : ''"
+        >
           <v-btn
             v-if="!item.isOpen"
-            :id="'r' + i + '-' + j"
+            :id="fieldIdWrap(i, j)"
             :class="setFieldClassWrap(item, i + j)"
             absolute
             icon
@@ -24,7 +27,7 @@
           </v-btn>
         </transition>
         <v-btn
-          :id="'c' + i + '-' + j"
+          :id="fieldId(i, j)"
           :class="setFieldClass(item, i + j)"
           icon
           small
@@ -64,6 +67,8 @@
 
 <script lang="ts">
 import {Component, Vue, Prop, Watch} from "vue-property-decorator";
+import {getSign} from "@/utils/index";
+import gsap from "gsap";
 
 @Component
 export default class Single extends Vue {
@@ -73,17 +78,7 @@ export default class Single extends Vue {
   };
   private timerId = 0;
   private scoreAlert = false;
-
-  // クリア判定
-  @Watch("$store.getters.isGameClear")
-  showClearDisplay() {
-    if (this.$store.getters.isGameClear) {
-      this.$store.dispatch("stopTimer");
-      this.$store.dispatch("openCellAll");
-      this.$store.dispatch("registerHistory");
-      this.showSnackbar("clear");
-    }
-  }
+  private cellAnimation = false;
 
   @Watch("$store.getters.isStart")
   setInit() {
@@ -121,11 +116,8 @@ export default class Single extends Vue {
     let theme = this.$store.getters.config.darkTheme ? "--dark" : "";
     return "cell" + even + theme + " wrapCell";
   }
-  setTransitionName() {
-    return Math.random() < 0.5 ? "open-cell-r" : "open-cell-l";
-  }
   openCell(row: number, col: number) {
-    const cell = this.$store.getters.field[row][col];
+    let cell = this.$store.getters.field[row][col];
     if (cell.isFlag || cell.isOpen) {
       return;
     }
@@ -133,8 +125,11 @@ export default class Single extends Vue {
     if (!this.$store.getters.isStart) {
       this.$store.dispatch("initFieldFromClick", {row, col});
       this.$store.dispatch("startTimer");
-      return;
+      cell = this.$store.getters.field[row][col]; // フィールド情報を再取得
     }
+    // アニメーションの設定
+    this.cellAnimation =
+      cell.isLandMine || cell.aroundMines === 0 ? false : true;
     // ゲームオーバー判定
     if (cell.isLandMine) {
       this.$store.dispatch("stopTimer");
@@ -142,7 +137,16 @@ export default class Single extends Vue {
       this.showSnackbar("gameOver");
       return;
     }
+    // セルのオープン
     this.$store.dispatch("openCell", {row, col});
+    // クリア判定
+    if (this.$store.getters.isGameClear) {
+      this.cellAnimation = false;
+      this.$store.dispatch("stopTimer");
+      this.$store.dispatch("openCellAll");
+      this.$store.dispatch("registerHistory");
+      this.showSnackbar("clear");
+    }
   }
   toggleFlag(row: number, col: number) {
     const cell = this.$store.getters.field[row][col];
@@ -172,6 +176,35 @@ export default class Single extends Vue {
   }
   display3BVs(BBBVs: number) {
     return Math.round(BBBVs * 1000) / 1000;
+  }
+  fieldId(i: number, j: number) {
+    return "c" + i + "-" + j;
+  }
+  fieldIdWrap(i: number, j: number) {
+    return "r" + i + "-" + j;
+  }
+  breakCellAnimation(i: number, j: number) {
+    const id = "#" + this.fieldIdWrap(i, j);
+    const signX = getSign();
+    const midX = 50;
+    const midY = gsap.utils.random(-400, -350);
+    const endX = 75;
+    const endY = 0;
+    gsap.set(id, {
+      backgroundColor: this.$vuetify.theme.themes.light.accent as string,
+    });
+    gsap.to(id, {
+      rotation: "random(-720, 720)",
+      scale: 0,
+      duration: 0.4, // dirty hack
+      motionPath: {
+        path: [
+          {x: 0, y: 0},
+          {x: signX * midX, y: midY},
+          {x: signX * endX, y: endY},
+        ],
+      },
+    });
   }
   created() {
     this.$store.dispatch("initClearField");
@@ -215,51 +248,7 @@ export default class Single extends Vue {
   z-index: 1;
 }
 
-// base keyframes
-@mixin keyframes($animation-name) {
-  @keyframes #{$animation-name} {
-    @content;
-  }
-}
-
-@mixin animation($animation-name) {
-  animation: $animation-name;
-}
-
-// my animation
-@function getPoint($t, $x1, $x2, $sign) {
-  $x: $t * $t * $x2 + 2 * $t * (1 - $t) * $x1;
-  @return $sign * $x + unquote("%");
-}
-
-@mixin break-transform($base, $signX) {
-  @for $i from 0 through 100 {
-    #{$i}% {
-      transform: translate(
-          getPoint($i * 0.01, $base * 0.2, $base, $signX),
-          getPoint($i * 0.01, $base * 0.8, $base, -1)
-        )
-        rotate(($i * 7.2) + unquote("deg"))
-        scale(1 - ($i * 0.01));
-    }
-  }
-}
-
-@include keyframes(break-cell-r) {
-  @include break-transform(150, 1);
-}
-
-@include keyframes(break-cell-l) {
-  @include break-transform(150, -1);
-}
-
-.open-cell-r-leave-active {
+.open-cell-leave-active {
   background-color: var(--v-accent-base);
-  @include animation(break-cell-r 0.5s);
-}
-
-.open-cell-l-leave-active {
-  background-color: var(--v-accent-base);
-  @include animation(break-cell-l 0.5s);
 }
 </style>
