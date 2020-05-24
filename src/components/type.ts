@@ -8,6 +8,13 @@ export interface SideMenuItems {
   click: Function;
 }
 
+export interface HeaderCenterItems {
+  icon: string;
+  title: string;
+  click: Function;
+  content: Function;
+}
+
 export interface HeaderRightItems {
   icon: string;
   title: string;

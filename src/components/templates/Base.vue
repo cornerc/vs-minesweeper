@@ -1,47 +1,10 @@
 <template>
   <div class="base">
     <v-card tile flat class="common">
-      <v-toolbar dense flat :tile="false">
-        <v-toolbar-title title="vs-minesweeper">
-          VSマインスイーパー
-        </v-toolbar-title>
-        <v-spacer />
-        <v-icon>mdi-table</v-icon>
-        <v-chip
-          class="ma-2"
-          title="table"
-          label
-          @click.stop="toggleItem('configDialog')"
-        >
-          {{ config.row }} × {{ config.col }}
-        </v-chip>
-        <v-spacer />
-        <v-icon>mdi-av-timer</v-icon>
-        <v-chip class="ma-2" title="time" label>
-          {{ displayMmss(time) }}
-        </v-chip>
-        <v-spacer />
-        <v-icon>mdi-emoticon-cool-outline</v-icon>
-        <v-chip
-          class="ma-2"
-          title="mine"
-          label
-          @click.stop="toggleItem('configDialog')"
-        >
-          {{ remainMine }} / {{ config.mine }}
-        </v-chip>
-        <v-spacer />
-        <template v-for="item in headerRightItems">
-          <v-btn
-            :key="item.title"
-            :title="item.title"
-            icon
-            @click.stop="item.click"
-          >
-            <v-icon>{{ item.icon }}</v-icon>
-          </v-btn>
-        </template>
-      </v-toolbar>
+      <app-header
+        :header-right-items="headerRightItems"
+        :header-center-items="headerCenterItems"
+      />
       <v-navigation-drawer
         class="navigation-drawer"
         :mini-variant="!toggles.drawer"
@@ -91,17 +54,20 @@
 <script lang="ts">
 import {Component, Prop, Vue, Watch, Emit} from "vue-property-decorator";
 import {displayMmss} from "@/utils/index";
+import AppHeader from "@/components/molecules/AppHeader.vue";
 import ConfigDialog from "@/components/molecules/ConfigDialog.vue";
 import InfoDialog from "@/components/molecules/InfoDialog.vue";
 import {
   BaseToggles,
   Config,
   SideMenuItems,
+  HeaderCenterItems,
   HeaderRightItems,
 } from "@/components/type";
 
 @Component({
   components: {
+    AppHeader,
     ConfigDialog,
     InfoDialog,
   },
@@ -113,19 +79,29 @@ export default class Base extends Vue {
   private time: number;
   @Prop({type: Number, default: 0})
   private remainMine: number;
-  @Prop({
-    type: Array,
-    default: () => [
-      {
-        icon: "mdi-home",
-        title: "top",
-        text: "TOP",
-        click: () => {},
-      },
-    ],
-  })
+  @Prop({type: Array, default: () => []})
   private sideMenuItems: SideMenuItems[];
 
+  private headerCenterItems: HeaderCenterItems[] = [
+    {
+      icon: "mdi-table",
+      title: "table",
+      click: () => this.toggleItem("configDialog"),
+      content: () => this.displayTable,
+    },
+    {
+      icon: "mdi-av-timer",
+      title: "time",
+      click: () => {},
+      content: () => this.displayMmss(this.time),
+    },
+    {
+      icon: "mdi-emoticon-cool-outline",
+      title: "mine",
+      click: () => this.toggleItem("configDialog"),
+      content: () => this.displayMine,
+    },
+  ];
   private headerRightItems: HeaderRightItems[] = [
     {
       icon: "mdi-information",
@@ -149,8 +125,14 @@ export default class Base extends Vue {
     infoDialog: false,
   };
 
+  get displayTable() {
+    return this.config.row + " × " + this.config.col;
+  }
   get displayMmss() {
     return displayMmss;
+  }
+  get displayMine() {
+    return this.remainMine + " / " + this.config.mine;
   }
 
   toggleItem(item: BaseToggles) {

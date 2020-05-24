@@ -97,11 +97,11 @@ import {Config} from "@/components/type";
 @Component
 export default class ConfigDialog extends Vue {
   @Prop({type: Boolean, default: false})
-  value: boolean;
+  private value: boolean;
   @Prop({type: Object, default: {}})
-  config: Config;
+  private config: Config;
   @Prop({type: [String, Boolean], default: "dialog-transition"})
-  transition: string | boolean;
+  private transition: string | boolean;
   @Prop({type: Function, default: () => {}})
   private toggle: () => {};
 

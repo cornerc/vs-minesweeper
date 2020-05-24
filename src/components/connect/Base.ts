@@ -53,4 +53,9 @@ export default connect({
       ];
     },
   },
+  lifecycle: {
+    created: (store: any) => {
+      store.dispatch("setConfig", store.getters.config);
+    },
+  },
 })("Base", Base);
