@@ -5,58 +5,37 @@
         :header-right-items="headerRightItems"
         :header-center-items="headerCenterItems"
       />
-      <v-navigation-drawer
-        class="navigation-drawer"
-        :mini-variant="!toggles.drawer"
-        app
-        permanent
-      >
-        <v-list>
-          <v-list-item @click.stop="toggleItem('drawer')">
-            <v-icon v-if="toggles.drawer" title="close-sidebar">
-              mdi-chevron-triple-left
-            </v-icon>
-            <v-icon v-else title="open-sidebar">
-              mdi-chevron-triple-right
-            </v-icon>
-          </v-list-item>
-          <template v-for="item in sideMenuItems">
-            <v-list-item :key="item.title" link @click.stop="item.click">
-              <v-list-item-action>
-                <v-icon :title="item.title">{{ item.icon }}</v-icon>
-              </v-list-item-action>
-              <v-list-item-content :class="item.class">
-                <v-list-item-title>{{ item.text }}</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-          </template>
-        </v-list>
-      </v-navigation-drawer>
+      <side-menu
+        :side-menu-items="sideMenuItems"
+        :value="toggles.drawer"
+        :toggle="() => toggleItem('drawer')"
+      />
     </v-card>
     <v-content>
       <v-container fluid>
         <router-view />
       </v-container>
-      <infoDialog
-        :value="toggles.infoDialog"
-        :toggle="() => toggleItem('infoDialog')"
-      />
-      <configDialog
-        :value="toggles.configDialog"
-        :config="config"
-        :toggle="() => toggleItem('configDialog')"
-        @saveConfig="saveConfig"
-      />
     </v-content>
+    <infoDialog
+      :value="toggles.infoDialog"
+      :toggle="() => toggleItem('infoDialog')"
+    />
+    <configDialog
+      :value="toggles.configDialog"
+      :config="config"
+      :toggle="() => toggleItem('configDialog')"
+      @saveConfig="saveConfig"
+    />
   </div>
 </template>
 
 <script lang="ts">
-import {Component, Prop, Vue, Watch, Emit} from "vue-property-decorator";
+import {Component, Prop, Vue, Emit} from "vue-property-decorator";
 import {displayMmss} from "@/utils/index";
 import AppHeader from "@/components/molecules/AppHeader.vue";
 import ConfigDialog from "@/components/molecules/ConfigDialog.vue";
 import InfoDialog from "@/components/molecules/InfoDialog.vue";
+import SideMenu from "@/components/molecules/SideMenu.vue";
 import {
   BaseToggles,
   Config,
@@ -70,6 +49,7 @@ import {
     AppHeader,
     ConfigDialog,
     InfoDialog,
+    SideMenu,
   },
 })
 export default class Base extends Vue {
@@ -153,9 +133,5 @@ export default class Base extends Vue {
 <style scoped>
 .common {
   z-index: 6;
-}
-
-.navigation-drawer {
-  margin-top: 48px;
 }
 </style>

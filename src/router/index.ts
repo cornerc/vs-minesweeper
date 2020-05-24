@@ -13,29 +13,37 @@ const routes: RouteConfig[] = [
     component: Base,
     children: [
       {
-        path: "/",
+        name: "top",
+        path: "/top",
         component: Top,
       },
       {
+        name: "single",
         path: "/single",
         component: Single,
       },
       {
+        name: "timeAttack",
         path: "/time-attack",
         redirect: "/coming-soon",
       },
       {
+        name: "turn",
         path: "/turn",
         redirect: "/coming-soon",
       },
       {
+        name: "realTime",
         path: "/real-time",
         redirect: "/coming-soon",
       },
-
       {
         path: "/coming-soon",
         component: ComingSoon,
+      },
+      {
+        path: "*",
+        redirect: {name: "top"},
       },
     ],
   },

@@ -5,7 +5,7 @@ export interface SideMenuItems {
   icon: string;
   title: string;
   text: string;
-  click: Function;
+  to: object;
 }
 
 export interface HeaderCenterItems {
