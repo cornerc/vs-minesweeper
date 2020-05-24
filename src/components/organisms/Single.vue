@@ -38,40 +38,26 @@
         </v-btn>
       </span>
     </div>
-    <div class="score">
-      <v-fab-transition origin="top right">
-        <v-alert v-if="toggles.scoreAlert" dismissible>
-          <template #close>
-            <v-btn icon class="mx-1" @click.stop="toggleItem('scoreAlert')">
-              <v-icon>mdi-crown</v-icon>
-            </v-btn>
-          </template>
-          <span class="title">BEST 5 (3BV/s)</span>
-          <br />
-          <span v-for="(item, idx) in historys" :key="idx">
-            <div class="my-1 body-1">
-              {{ idx + 1 }}位
-              {{ display3BVs(item.BBBVs) }}
-              ({{ displayDate(item.date) }})
-            </div>
-            <hr />
-          </span>
-        </v-alert>
-        <v-btn v-else icon @click.stop="toggleItem('scoreAlert')">
-          <v-icon>mdi-crown</v-icon>
-        </v-btn>
-      </v-fab-transition>
-    </div>
+    <score-board
+      :value="toggles.scoreAlert"
+      :historys="historys"
+      :toggle="() => toggleItem('scoreAlert')"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import {Component, Emit, Vue, Prop, Watch} from "vue-property-decorator";
 import gsap from "gsap";
-import {getSign} from "@/utils/index";
+import {display3BVs, getSign} from "@/utils/index";
+import ScoreBoard from "@/components/molecules/ScoreBoard.vue";
 import {Config, SingleToggles} from "@/components/type";
 
-@Component
+@Component({
+  components: {
+    ScoreBoard,
+  },
+})
 export default class Single extends Vue {
   @Prop({type: Array, default: () => {}})
   private field: any[];
@@ -166,17 +152,11 @@ export default class Single extends Vue {
       this.snackbarText =
         "おめでとうございます。クリアしました！" +
         "スコア：" +
-        this.display3BVs(this.BBBVs);
+        display3BVs(this.BBBVs);
     } else {
       this.snackbarText = "あなたは戦死しました。";
     }
     this.toggleItem("snackbar");
-  }
-  displayDate(date: string) {
-    return date;
-  }
-  display3BVs(BBBVs: number) {
-    return Math.round(BBBVs * 1000) / 1000;
   }
   fieldId(i: number, j: number) {
     return "c" + i + "-" + j;
@@ -235,12 +215,6 @@ export default class Single extends Vue {
 </script>
 
 <style scoped lang="scss">
-.score {
-  position: absolute;
-  top: 12px;
-  right: 10px;
-}
-
 .cell {
   &--open {
     &--odd {

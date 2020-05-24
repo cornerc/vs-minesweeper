@@ -1,16 +1,15 @@
 <template>
   <v-dialog
-    :value="dialog"
+    :value="value"
     :transition="transition"
     max-width="50%"
-    @click:outside.stop="toggleDialog"
-    @keydown.esc.stop="toggleDialog"
+    @click:outside.stop="toggle"
+    @keydown.esc.stop="toggle"
   >
     <v-card>
       <v-card-title class="headline">
         設定
       </v-card-title>
-
       <v-card-text>
         <v-container>
           <v-form v-model="valid">
@@ -78,10 +77,9 @@
           </v-form>
         </v-container>
       </v-card-text>
-
       <v-card-actions>
         <v-spacer />
-        <v-btn text @click.stop="toggleDialog">
+        <v-btn text @click.stop="toggle">
           キャンセル
         </v-btn>
         <v-btn text :disabled="!valid" @click.stop="saveConfig">
@@ -99,11 +97,13 @@ import {Config} from "@/components/type";
 @Component
 export default class ConfigDialog extends Vue {
   @Prop({type: Boolean, default: false})
-  dialog: boolean;
+  private value: boolean;
   @Prop({type: Object, default: {}})
-  config: Config;
+  private config: Config;
   @Prop({type: [String, Boolean], default: "dialog-transition"})
-  transition: string | boolean;
+  private transition: string | boolean;
+  @Prop({type: Function, default: () => {}})
+  private toggle: () => {};
 
   private innerConfig: Config = Object.assign({}, this.config);
   private valid = true;
@@ -145,13 +145,8 @@ export default class ConfigDialog extends Vue {
 
   @Emit("saveConfig")
   saveConfig() {
-    this.toggleDialog();
+    this.toggle();
     return this.innerConfig;
-  }
-
-  @Emit("toggleDialog")
-  toggleDialog() {
-    return;
   }
 }
 </script>

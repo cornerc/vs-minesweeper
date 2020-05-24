@@ -1,10 +1,10 @@
 <template>
   <v-dialog
-    :value="dialog"
+    :value="value"
     :transition="transition"
     max-width="70%"
-    @click:outside.stop="toggleDialog"
-    @keydown.esc.stop="toggleDialog"
+    @click:outside.stop="toggle"
+    @keydown.esc.stop="toggle"
   >
     <v-card>
       <v-card-title class="headline">
@@ -43,7 +43,7 @@
       </v-card-text>
 
       <v-card-actions>
-        <v-btn text block large outlined @click.stop="toggleDialog">
+        <v-btn text block large outlined @click.stop="toggle">
           閉じる
         </v-btn>
       </v-card-actions>
@@ -57,14 +57,11 @@ import {Component, Emit, Prop, Vue} from "vue-property-decorator";
 @Component
 export default class InfoDialog extends Vue {
   @Prop({type: Boolean, default: false})
-  dialog: boolean;
+  value: boolean;
   @Prop({type: [String, Boolean], default: "dialog-transition"})
   transition: string | boolean;
-
-  @Emit("toggleDialog")
-  toggleDialog() {
-    return;
-  }
+  @Prop({type: Function, default: () => {}})
+  private toggle: () => {};
 }
 </script>
 

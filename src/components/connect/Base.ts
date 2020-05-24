@@ -24,33 +24,38 @@ export default connect({
           icon: "mdi-home",
           title: "top",
           text: "TOP",
-          click: () => router.push("/", () => {}),
+          to: {name: "top"},
         },
         {
           icon: "mdi-account",
           title: "single",
           text: "Single",
-          click: () => router.push("single", () => {}),
+          to: {name: "single"},
         },
         {
           icon: "mdi-timer-outline",
           title: "time attack",
           text: "Time Attack",
-          click: () => router.push("time-attack", () => {}),
+          to: {name: "timeAttack"},
         },
         {
           icon: "mdi-account-convert",
           title: "alternation",
           text: "Turn",
-          click: () => router.push("turn", () => {}),
+          to: {name: "turn"},
         },
         {
           icon: "mdi-timer",
           title: "real time",
           text: "Real Time Attack",
-          click: () => router.push("real-time", () => {}),
+          to: {name: "realTime"},
         },
       ];
+    },
+  },
+  lifecycle: {
+    created: (store: any) => {
+      store.dispatch("setConfig", store.getters.config);
     },
   },
 })("Base", Base);
