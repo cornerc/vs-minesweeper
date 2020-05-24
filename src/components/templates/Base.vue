@@ -18,7 +18,7 @@
         <v-spacer />
         <v-icon>mdi-av-timer</v-icon>
         <v-chip class="ma-2" title="time" label>
-          {{ displayTime(time) }}
+          {{ displayMmss(time) }}
         </v-chip>
         <v-spacer />
         <v-icon>mdi-emoticon-cool-outline</v-icon>
@@ -76,12 +76,12 @@
       </v-container>
       <infoDialog
         :dialog="toggles.infoDialog"
-        @toggleDialog="toggleItem('infoDialog')"
+        @toggle="toggleItem('infoDialog')"
       />
       <configDialog
         :dialog="toggles.configDialog"
         :config="config"
-        @toggleDialog="toggleItem('configDialog')"
+        @toggle="toggleItem('configDialog')"
         @saveConfig="saveConfig"
       />
     </v-content>
@@ -90,10 +90,15 @@
 
 <script lang="ts">
 import {Component, Prop, Vue, Watch, Emit} from "vue-property-decorator";
-import {Config} from "@/components/type";
+import {displayMmss} from "@/utils/index";
 import ConfigDialog from "@/components/molecules/ConfigDialog.vue";
 import InfoDialog from "@/components/molecules/InfoDialog.vue";
-import {BaseToggles, SideMenuItems, HeaderRightItems} from "@/components/type";
+import {
+  BaseToggles,
+  Config,
+  SideMenuItems,
+  HeaderRightItems,
+} from "@/components/type";
 
 @Component({
   components: {
@@ -121,7 +126,7 @@ export default class Base extends Vue {
   })
   private sideMenuItems: SideMenuItems[];
 
-  headerRightItems: HeaderRightItems[] = [
+  private headerRightItems: HeaderRightItems[] = [
     {
       icon: "mdi-information",
       title: "information",
@@ -144,13 +149,12 @@ export default class Base extends Vue {
     infoDialog: false,
   };
 
+  get displayMmss() {
+    return displayMmss;
+  }
+
   toggleItem(item: BaseToggles) {
     this.toggles[item] = !this.toggles[item];
-  }
-  displayTime(time: number) {
-    const minute = Math.floor(time / 60);
-    const second = time % 60;
-    return ("0" + minute).slice(-2) + ":" + ("0" + second).slice(-2);
   }
 
   @Emit("initClearField")

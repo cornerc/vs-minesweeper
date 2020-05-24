@@ -3,8 +3,8 @@
     :value="dialog"
     :transition="transition"
     max-width="70%"
-    @click:outside.stop="toggleDialog"
-    @keydown.esc.stop="toggleDialog"
+    @click:outside.stop="toggle"
+    @keydown.esc.stop="toggle"
   >
     <v-card>
       <v-card-title class="headline">
@@ -43,7 +43,7 @@
       </v-card-text>
 
       <v-card-actions>
-        <v-btn text block large outlined @click.stop="toggleDialog">
+        <v-btn text block large outlined @click.stop="toggle">
           閉じる
         </v-btn>
       </v-card-actions>
@@ -61,8 +61,8 @@ export default class InfoDialog extends Vue {
   @Prop({type: [String, Boolean], default: "dialog-transition"})
   transition: string | boolean;
 
-  @Emit("toggleDialog")
-  toggleDialog() {
+  @Emit("toggle")
+  toggle() {
     return;
   }
 }

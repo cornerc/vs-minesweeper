@@ -3,14 +3,13 @@
     :value="dialog"
     :transition="transition"
     max-width="50%"
-    @click:outside.stop="toggleDialog"
-    @keydown.esc.stop="toggleDialog"
+    @click:outside.stop="toggle"
+    @keydown.esc.stop="toggle"
   >
     <v-card>
       <v-card-title class="headline">
         設定
       </v-card-title>
-
       <v-card-text>
         <v-container>
           <v-form v-model="valid">
@@ -78,10 +77,9 @@
           </v-form>
         </v-container>
       </v-card-text>
-
       <v-card-actions>
         <v-spacer />
-        <v-btn text @click.stop="toggleDialog">
+        <v-btn text @click.stop="toggle">
           キャンセル
         </v-btn>
         <v-btn text :disabled="!valid" @click.stop="saveConfig">
@@ -145,12 +143,12 @@ export default class ConfigDialog extends Vue {
 
   @Emit("saveConfig")
   saveConfig() {
-    this.toggleDialog();
+    this.toggle();
     return this.innerConfig;
   }
 
-  @Emit("toggleDialog")
-  toggleDialog() {
+  @Emit("toggle")
+  toggle() {
     return;
   }
 }
