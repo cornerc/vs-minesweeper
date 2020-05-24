@@ -1,6 +1,6 @@
 <template>
   <v-dialog
-    :value="dialog"
+    :value="value"
     :transition="transition"
     max-width="50%"
     @click:outside.stop="toggle"
@@ -97,11 +97,13 @@ import {Config} from "@/components/type";
 @Component
 export default class ConfigDialog extends Vue {
   @Prop({type: Boolean, default: false})
-  dialog: boolean;
+  value: boolean;
   @Prop({type: Object, default: {}})
   config: Config;
   @Prop({type: [String, Boolean], default: "dialog-transition"})
   transition: string | boolean;
+  @Prop({type: Function, default: () => {}})
+  private toggle: () => {};
 
   private innerConfig: Config = Object.assign({}, this.config);
   private valid = true;
@@ -145,11 +147,6 @@ export default class ConfigDialog extends Vue {
   saveConfig() {
     this.toggle();
     return this.innerConfig;
-  }
-
-  @Emit("toggle")
-  toggle() {
-    return;
   }
 }
 </script>

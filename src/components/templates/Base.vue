@@ -75,13 +75,13 @@
         <router-view />
       </v-container>
       <infoDialog
-        :dialog="toggles.infoDialog"
-        @toggle="toggleItem('infoDialog')"
+        :value="toggles.infoDialog"
+        :toggle="() => toggleItem('infoDialog')"
       />
       <configDialog
-        :dialog="toggles.configDialog"
+        :value="toggles.configDialog"
         :config="config"
-        @toggle="toggleItem('configDialog')"
+        :toggle="() => toggleItem('configDialog')"
         @saveConfig="saveConfig"
       />
     </v-content>

@@ -1,6 +1,6 @@
 <template>
   <v-dialog
-    :value="dialog"
+    :value="value"
     :transition="transition"
     max-width="70%"
     @click:outside.stop="toggle"
@@ -57,14 +57,11 @@ import {Component, Emit, Prop, Vue} from "vue-property-decorator";
 @Component
 export default class InfoDialog extends Vue {
   @Prop({type: Boolean, default: false})
-  dialog: boolean;
+  value: boolean;
   @Prop({type: [String, Boolean], default: "dialog-transition"})
   transition: string | boolean;
-
-  @Emit("toggle")
-  toggle() {
-    return;
-  }
+  @Prop({type: Function, default: () => {}})
+  private toggle: () => {};
 }
 </script>
 

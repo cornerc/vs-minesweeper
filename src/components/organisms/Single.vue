@@ -39,9 +39,9 @@
       </span>
     </div>
     <score-board
-      :score-board="toggles.scoreAlert"
+      :value="toggles.scoreAlert"
       :historys="historys"
-      @toggle="toggleItem('scoreAlert')"
+      :toggle="() => toggleItem('scoreAlert')"
     />
   </div>
 </template>

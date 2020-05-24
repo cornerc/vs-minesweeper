@@ -1,7 +1,7 @@
 <template>
   <div class="score">
     <v-fab-transition origin="top right">
-      <v-alert v-if="scoreBoard" dismissible>
+      <v-alert v-if="value" dismissible>
         <template #close>
           <v-btn icon class="mx-1" @click.stop="toggle">
             <v-icon>mdi-crown</v-icon>
@@ -32,17 +32,14 @@ import {display3BVs} from "@/utils/index";
 @Component
 export default class ScoreBoard extends Vue {
   @Prop({type: Boolean, default: false})
-  private scoreBoard: boolean;
-  @Prop({type: Array, default: () => {}})
+  private value: boolean;
+  @Prop({type: Array, default: () => []})
   private historys: any[];
+  @Prop({type: Function, default: () => {}})
+  private toggle: () => {};
 
   get display3BVs() {
     return display3BVs;
-  }
-
-  @Emit("toggle")
-  toggle() {
-    return;
   }
 }
 </script>
