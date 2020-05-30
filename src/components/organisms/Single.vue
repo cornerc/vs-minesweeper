@@ -14,10 +14,7 @@
     </v-snackbar>
     <div v-for="(items, i) in field" :key="i">
       <span v-for="(item, j) in items" :key="i + '-' + j">
-        <transition
-          duration="300"
-          @leave="cellAnimation ? breakCellAnimation(i, j) : ''"
-        >
+        <transition :css="false" @leave="breakCellAnimation">
           <v-btn
             v-if="!item.isOpen"
             :id="fieldIdWrap(i, j)"
@@ -175,27 +172,25 @@ export default class Single extends Vue {
   fieldIdWrap(i: number, j: number) {
     return "r" + i + "-" + j;
   }
-  breakCellAnimation(i: number, j: number) {
-    const id = "#" + this.fieldIdWrap(i, j);
+  breakCellAnimation(el: HTMLButtonElement, done: gsap.Callback) {
+    if (!this.cellAnimation) {
+      gsap.set(el, {opacity: 0, onComplete: done});
+      return;
+    }
     const signX = getSign();
-    const midX = 50;
-    const midY = gsap.utils.random(-400, -350);
-    const endX = 75;
-    const endY = 0;
-    gsap.set(id, {
-      backgroundColor: this.$vuetify.theme.themes.light.accent as string,
+    const midY = -1 * gsap.utils.random(300, 350);
+    gsap.set(el, {
+      backgroundColor: "var(--v-accent-base)",
     });
-    gsap.to(id, {
+    gsap.to(el, {
       rotation: "random(-720, 720)",
       scale: 0,
-      duration: 0.4, // dirty hack
-      motionPath: {
-        path: [
-          {x: 0, y: 0},
-          {x: signX * midX, y: midY},
-          {x: signX * endX, y: endY},
-        ],
-      },
+      opacity: 0,
+      motionPath: [
+        {x: signX * 50, y: midY},
+        {x: signX * 75, y: 0},
+      ],
+      onComplete: done,
     });
   }
   @Emit("openCell")
@@ -253,9 +248,5 @@ export default class Single extends Vue {
 
 .wrapCell {
   z-index: 1;
-}
-
-.open-cell-leave-active {
-  background-color: var(--v-accent-base);
 }
 </style>
