@@ -2,6 +2,7 @@
   <v-navigation-drawer
     class="navigation-drawer"
     :mini-variant="!value"
+    width="220"
     app
     permanent
   >
@@ -23,7 +24,7 @@
           <v-list-item-action>
             <v-icon :title="item.title">{{ item.icon }}</v-icon>
           </v-list-item-action>
-          <v-list-item-content :class="item.class">
+          <v-list-item-content>
             <v-list-item-title>{{ item.text }}</v-list-item-title>
           </v-list-item-content>
         </v-list-item>

@@ -69,7 +69,7 @@
             </v-row>
             <v-row>
               <v-col>
-                <span class="red--text">
+                <span class="error--text">
                   設定を保存するとプレイ中のフィールドは初期化されます
                 </span>
               </v-col>

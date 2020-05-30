@@ -1,5 +1,5 @@
 <template>
-  <v-toolbar dense flat :tile="false">
+  <v-toolbar dense flat color="primary">
     <v-toolbar-title title="vs-minesweeper">
       VSマインスイーパー
     </v-toolbar-title>
