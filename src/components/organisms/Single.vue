@@ -1,8 +1,14 @@
 <template>
   <div class="single">
-    <v-snackbar v-model="toggles.snackbar" :timeout="5000" multi-line top>
-      {{ snackbarText }}
-      <v-btn color="red" text @click="toggleItem('snackbar')">
+    <v-snackbar
+      v-model="toggles.snackbar"
+      :timeout="5000"
+      multi-line
+      top
+      :color="snackbar.color"
+    >
+      {{ snackbar.text }}
+      <v-btn depressed @click="toggleItem('snackbar')">
         閉じる
       </v-btn>
     </v-snackbar>
@@ -72,7 +78,10 @@ export default class Single extends Vue {
   @Prop({type: Number, default: 0})
   private BBBVs: number;
 
-  private snackbarText = "";
+  private snackbar = {
+    text: "",
+    color: "",
+  };
   private cellAnimation = false;
   private toggles = {
     scoreAlert: false,
@@ -149,12 +158,14 @@ export default class Single extends Vue {
   }
   showSnackbar(type: string) {
     if (type === "clear") {
-      this.snackbarText =
+      this.snackbar.text =
         "おめでとうございます。クリアしました！" +
         "スコア：" +
         display3BVs(this.BBBVs);
+      this.snackbar.color = "warning";
     } else {
-      this.snackbarText = "あなたは戦死しました。";
+      this.snackbar.text = "あなたは戦死しました。";
+      this.snackbar.color = "error";
     }
     this.toggleItem("snackbar");
   }

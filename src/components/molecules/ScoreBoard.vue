@@ -1,9 +1,15 @@
 <template>
   <div class="score">
     <v-fab-transition origin="top right">
-      <v-alert v-if="value" dismissible>
+      <v-alert
+        v-if="value"
+        border="left"
+        color="secondary"
+        dismissible
+        outlined
+      >
         <template #close>
-          <v-btn icon class="mx-1" @click.stop="toggle">
+          <v-btn icon class="mx-1" color="secondary" @click.stop="toggle">
             <v-icon>mdi-crown</v-icon>
           </v-btn>
         </template>
