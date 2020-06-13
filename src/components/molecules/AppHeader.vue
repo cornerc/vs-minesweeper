@@ -7,7 +7,13 @@
     <template v-for="item in headerCenterItems">
       <span :key="item.title">
         <v-icon>{{ item.icon }}</v-icon>
-        <v-chip class="ma-2" :title="item.title" label @click.stop="item.click">
+        <v-chip
+          class="ma-2"
+          :title="item.title"
+          label
+          :disabled="disabled"
+          @click.stop="item.click"
+        >
           {{ item.content() }}
         </v-chip>
       </span>
@@ -17,6 +23,7 @@
       <v-btn
         :key="item.title"
         :title="item.title"
+        :disabled="disabled && item.title !== 'information'"
         icon
         @click.stop="item.click"
       >
@@ -36,5 +43,7 @@ export default class AppHeader extends Vue {
   private headerCenterItems: HeaderCenterItems[];
   @Prop({type: Array, default: () => []})
   private headerRightItems: HeaderRightItems[];
+  @Prop({type: Boolean, default: false})
+  private disabled: boolean;
 }
 </script>

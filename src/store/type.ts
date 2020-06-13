@@ -24,3 +24,27 @@ export interface OpenMap {
   col: number;
   group: number;
 }
+
+export interface Session {
+  [sessionId: string]: {
+    user: {
+      id: string;
+      name: string;
+      score: number;
+    };
+    opponent: {
+      id: string;
+      name: string;
+      score: number;
+    };
+    field: {
+      [fieldId: string]: {
+        isLandMine: string;
+        aroundMines: number;
+        isOpen: boolean;
+      };
+    };
+  };
+}
+
+export type CountType = "countUp" | "countDown";

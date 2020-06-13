@@ -1,19 +1,22 @@
 import {connect} from "vuex-connect";
-import router from "@/router/index";
 import Base from "@/components/templates/Base.vue";
 import {SideMenuItems} from "@/components/type";
 
 export default connect({
   actionsToEvents: {
-    initClearField: dispatch => {
-      dispatch("initClearField");
+    initField: dispatch => {
+      dispatch("initField");
     },
     saveConfig: (dispatch, config) => {
-      dispatch("setConfig", config);
+      dispatch("setSingleConfig", config);
+    },
+    setConfigFromPath: (dispatch, path) => {
+      dispatch("setConfigFromPath", path);
     },
   },
   gettersToProps: {
     config: "config",
+    singleConfig: "singleConfig",
     time: "time",
     remainMine: "remainMine",
   },
@@ -33,16 +36,16 @@ export default connect({
           to: {name: "single"},
         },
         {
-          icon: "mdi-timer-outline",
-          title: "time attack",
-          text: "Time Attack",
-          to: {name: "timeAttack"},
-        },
-        {
           icon: "mdi-account-convert",
           title: "alternation",
           text: "Turn",
           to: {name: "turn"},
+        },
+        {
+          icon: "mdi-timer-outline",
+          title: "time attack",
+          text: "Time Attack",
+          to: {name: "timeAttack"},
         },
         {
           icon: "mdi-timer",
@@ -52,10 +55,8 @@ export default connect({
         },
       ];
     },
-  },
-  lifecycle: {
-    created: (store: any) => {
-      store.dispatch("setConfig", store.getters.config);
+    path: state => {
+      return state.route.name || "";
     },
   },
 })("Base", Base);

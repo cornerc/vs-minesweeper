@@ -4,6 +4,7 @@
       <app-header
         :header-right-items="headerRightItems"
         :header-center-items="headerCenterItems"
+        :disabled="path !== 'single'"
       />
       <side-menu
         :side-menu-items="sideMenuItems"
@@ -22,7 +23,7 @@
     />
     <configDialog
       :value="toggles.configDialog"
-      :config="config"
+      :config="singleConfig"
       :toggle="() => toggleItem('configDialog')"
       @saveConfig="saveConfig"
     />
@@ -30,7 +31,7 @@
 </template>
 
 <script lang="ts">
-import {Component, Prop, Vue, Emit} from "vue-property-decorator";
+import {Component, Prop, Vue, Emit, Watch} from "vue-property-decorator";
 import {displayMmss} from "@/utils/index";
 import AppHeader from "@/components/molecules/AppHeader.vue";
 import ConfigDialog from "@/components/molecules/ConfigDialog.vue";
@@ -55,12 +56,16 @@ import {
 export default class Base extends Vue {
   @Prop({type: Object, default: () => {}})
   private config: Config;
+  @Prop({type: Object, default: () => {}})
+  private singleConfig: Config;
   @Prop({type: Number, default: 0})
   private time: number;
   @Prop({type: Number, default: 0})
   private remainMine: number;
   @Prop({type: Array, default: () => []})
   private sideMenuItems: SideMenuItems[];
+  @Prop({type: String, default: undefined})
+  private path: string;
 
   private headerCenterItems: HeaderCenterItems[] = [
     {
@@ -105,6 +110,11 @@ export default class Base extends Vue {
     infoDialog: false,
   };
 
+  @Watch("path", {immediate: true})
+  updateConfig() {
+    this.setConfigFromPath(this.path);
+  }
+
   get displayTable() {
     return this.config.row + " × " + this.config.col;
   }
@@ -119,7 +129,11 @@ export default class Base extends Vue {
     this.toggles[item] = !this.toggles[item];
   }
 
-  @Emit("initClearField")
+  @Emit("setConfigFromPath")
+  setConfigFromPath(path: string) {
+    return path;
+  }
+  @Emit("initField")
   refreshField() {
     return;
   }
