@@ -33,7 +33,6 @@
                 <v-text-field
                   v-model.number="innerConfig.row"
                   :rules="rowRules"
-                  validate-on-blur
                   label="たて"
                   type="number"
                   dense

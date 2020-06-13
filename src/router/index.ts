@@ -2,6 +2,7 @@ import Vue from "vue";
 import VueRouter, {RouteConfig} from "vue-router";
 import Base from "@/components/connect/Base";
 import Single from "@/components/connect/Single";
+import Turn from "@/components/connect/Turn";
 import ComingSoon from "@/components/organisms/ComingSoon.vue";
 import Top from "@/components/organisms/Top.vue";
 
@@ -23,13 +24,18 @@ const routes: RouteConfig[] = [
         component: Single,
       },
       {
-        name: "timeAttack",
-        path: "/time-attack",
-        redirect: "/coming-soon",
-      },
-      {
         name: "turn",
         path: "/turn",
+        component: Turn,
+      },
+      {
+        name: "turnPlay",
+        path: "/turn/:uuid",
+        component: Turn,
+      },
+      {
+        name: "timeAttack",
+        path: "/time-attack",
         redirect: "/coming-soon",
       },
       {

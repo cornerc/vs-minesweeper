@@ -1,5 +1,6 @@
 export type BaseToggles = "drawer" | "configDialog" | "infoDialog";
 export type SingleToggles = "scoreAlert" | "snackbar";
+export type TurnToggles = "waitingDialog";
 
 export interface SideMenuItems {
   icon: string;

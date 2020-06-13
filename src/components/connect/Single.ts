@@ -8,8 +8,10 @@ export default connect({
       dispatch("openCell", {row, col});
     },
     firstClick: (dispatch, {row, col}) => {
+      dispatch("stopTimer");
+      dispatch("setTime", 0);
       dispatch("initFieldFromClick", {row, col});
-      dispatch("startTimer");
+      dispatch("startTimer", "countUp");
     },
     toggleFlag: (dispatch, {row, col}) => {
       dispatch("toggleFlag", {row, col});
@@ -38,8 +40,11 @@ export default connect({
     BBBVs: "BBBVs",
   },
   lifecycle: {
-    created: (store: any) => {
-      store.dispatch("initClearField");
+    mounted: async (store: any) => {
+      await store.dispatch("initField");
+    },
+    beforeDestroy: async (store: any) => {
+      await store.dispatch("initField");
     },
   },
 })("Single", Single);

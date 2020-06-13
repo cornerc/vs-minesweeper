@@ -18,4 +18,21 @@ const displayMmss = (time: number) => {
   return ("0" + minute).slice(-2) + ":" + ("0" + second).slice(-2);
 };
 
-export {display3BVs, displayMmss, getRandomInt, getSign};
+const generateUuid = () => {
+  let chars = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".split("");
+  for (let i = 0, len = chars.length; i < len; i++) {
+    switch (chars[i]) {
+      case "x":
+        chars[i] = Math.floor(Math.random() * 16).toString(16);
+        break;
+      case "y":
+        chars[i] = (Math.floor(Math.random() * 4) + 8).toString(16);
+        break;
+      default:
+        break;
+    }
+  }
+  return chars.join("");
+};
+
+export {display3BVs, displayMmss, getRandomInt, getSign, generateUuid};
