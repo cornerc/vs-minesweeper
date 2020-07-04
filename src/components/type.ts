@@ -12,14 +12,12 @@ export interface SideMenuItems {
 export interface HeaderCenterItems {
   icon: string;
   title: string;
-  click: Function;
-  content: Function;
+  content: string;
 }
 
 export interface HeaderRightItems {
   icon: string;
   title: string;
-  click: Function;
 }
 
 export interface Config {

@@ -5,6 +5,8 @@
         :header-right-items="headerRightItems"
         :header-center-items="headerCenterItems"
         :disabled="path !== 'single'"
+        @clickCenterContent="clickCenterContent"
+        @clickRightContent="clickRightContent"
       />
       <side-menu
         :side-menu-items="sideMenuItems"
@@ -71,37 +73,31 @@ export default class Base extends Vue {
     {
       icon: "mdi-table",
       title: "table",
-      click: () => this.toggleItem("configDialog"),
-      content: () => this.displayTable,
+      content: this.displayTable,
     },
     {
       icon: "mdi-av-timer",
       title: "time",
-      click: () => {},
-      content: () => this.displayMmss(this.time),
+      content: this.displayMmss(this.time),
     },
     {
       icon: "mdi-emoticon-cool-outline",
       title: "mine",
-      click: () => this.toggleItem("configDialog"),
-      content: () => this.displayMine,
+      content: this.displayMine,
     },
   ];
   private headerRightItems: HeaderRightItems[] = [
     {
       icon: "mdi-information",
       title: "information",
-      click: () => this.toggleItem("infoDialog"),
     },
     {
       icon: "mdi-refresh",
       title: "reload",
-      click: this.refreshField,
     },
     {
       icon: "mdi-cog",
       title: "setting",
-      click: () => this.toggleItem("configDialog"),
     },
   ];
   private toggles = {
@@ -127,6 +123,27 @@ export default class Base extends Vue {
 
   toggleItem(item: BaseToggles) {
     this.toggles[item] = !this.toggles[item];
+  }
+  clickCenterContent(value: string) {
+    switch (value) {
+      case "table":
+      case "mine":
+        this.toggleItem("configDialog");
+        break;
+    }
+  }
+  clickRightContent(value: string) {
+    switch (value) {
+      case "information":
+        this.toggleItem("infoDialog");
+        break;
+      case "reload":
+        this.refreshField;
+        break;
+      case "setting":
+        this.toggleItem("configDialog");
+        break;
+    }
   }
 
   @Emit("setConfigFromPath")

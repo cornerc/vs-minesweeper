@@ -12,9 +12,9 @@
           :title="item.title"
           label
           :disabled="disabled"
-          @click.stop="item.click"
+          @click.stop="clickChip(item.title)"
         >
-          {{ item.content() }}
+          {{ item.content }}
         </v-chip>
       </span>
       <v-spacer :key="item.title + '-spacer'" />
@@ -25,7 +25,7 @@
         :title="item.title"
         :disabled="disabled && item.title !== 'information'"
         icon
-        @click.stop="item.click"
+        @click.stop="clickIcon(item.title)"
       >
         <v-icon>{{ item.icon }}</v-icon>
       </v-btn>
@@ -34,7 +34,7 @@
 </template>
 
 <script lang="ts">
-import {Component, Prop, Vue} from "vue-property-decorator";
+import {Component, Emit, Prop, Vue} from "vue-property-decorator";
 import {HeaderCenterItems, HeaderRightItems} from "@/components/type";
 
 @Component
@@ -45,5 +45,14 @@ export default class AppHeader extends Vue {
   private headerRightItems: HeaderRightItems[];
   @Prop({type: Boolean, default: false})
   private disabled: boolean;
+
+  @Emit("clickCenterContent")
+  clickChip(value: string) {
+    return value;
+  }
+  @Emit("clickRightContent")
+  clickIcon(value: string) {
+    return value;
+  }
 }
 </script>
