@@ -1,0 +1,40 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AppHeader should be exist center item 1`] = `
+<header class="v-sheet v-sheet--tile theme--light v-toolbar v-toolbar--dense v-toolbar--flat primary" style="height: 48px;">
+  <div class="v-toolbar__content" style="height: 48px;">
+    <div title="vs-minesweeper" class="v-toolbar__title">
+      VSマインスイーパー
+    </div>
+    <div class="spacer"></div> <span><i aria-hidden="true" class="v-icon notranslate mdi mdi-table theme--light"></i> <span class="ma-2 v-chip v-chip--clickable v-chip--label v-chip--no-color theme--light v-size--default" title="table"><span class="v-chip__content">
+        table-content
+      </span></span></span>
+    <div class="spacer"></div><span><i aria-hidden="true" class="v-icon notranslate mdi mdi-av-timer theme--light"></i> <span class="ma-2 v-chip v-chip--clickable v-chip--label v-chip--no-color theme--light v-size--default" title="time"><span class="v-chip__content">
+        time-content
+      </span></span></span>
+    <div class="spacer"></div>
+  </div>
+</header>
+`;
+
+exports[`AppHeader should be exist right item 1`] = `
+<header class="v-sheet v-sheet--tile theme--light v-toolbar v-toolbar--dense v-toolbar--flat primary" style="height: 48px;">
+  <div class="v-toolbar__content" style="height: 48px;">
+    <div title="vs-minesweeper" class="v-toolbar__title">
+      VSマインスイーパー
+    </div>
+    <div class="spacer"></div> <button type="button" class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default" title="information"><span class="v-btn__content"><i aria-hidden="true" class="v-icon notranslate mdi mdi-information theme--light"></i></span></button>
+  </div>
+</header>
+`;
+
+exports[`AppHeader should be have title by default 1`] = `
+<header class="v-sheet v-sheet--tile theme--light v-toolbar v-toolbar--dense v-toolbar--flat primary" style="height: 48px;">
+  <div class="v-toolbar__content" style="height: 48px;">
+    <div title="vs-minesweeper" class="v-toolbar__title">
+      VSマインスイーパー
+    </div>
+    <div class="spacer"></div>
+  </div>
+</header>
+`;
