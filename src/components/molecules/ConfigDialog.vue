@@ -3,10 +3,11 @@
     :value="value"
     :transition="transition"
     max-width="50%"
+    class="config"
     @click:outside.stop="toggle"
     @keydown.esc.stop="toggle"
   >
-    <v-card>
+    <v-card class="content">
       <v-card-title class="headline">
         設定
       </v-card-title>
@@ -97,7 +98,7 @@ import {Config} from "@/components/type";
 export default class ConfigDialog extends Vue {
   @Prop({type: Boolean, default: false})
   private value: boolean;
-  @Prop({type: Object, default: {}})
+  @Prop({type: Object, default: () => {}})
   private config: Config;
   @Prop({type: [String, Boolean], default: "dialog-transition"})
   private transition: string | boolean;
